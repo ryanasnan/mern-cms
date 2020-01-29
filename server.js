@@ -10,7 +10,7 @@ const story = require('./routes/api/story');
 const user = require('./routes/api/user');
 
 // dotenv
-dotenv.config({path: './config/config.env'});
+dotenv.config({ path: './config/config.env' });
 
 const app = express();
 
@@ -25,8 +25,8 @@ app.use(passport.initialize());
 require('./config/passport')(passport);
 
 // dev logging middleware
-if(process.env.NODE_ENV == 'development') {
-        app.use(morgan('dev'));
+if (process.env.NODE_ENV == 'development') {
+	app.use(morgan('dev'));
 }
 
 app.get('/', (req, res) => res.send('Hello world'));
@@ -45,7 +45,7 @@ const server = app.listen(port, () => console.log(`Server running in ${process.e
 
 // Handle unhandled promise rejection
 process.on('unhandledRejection', (err, promise) => {
-        console.log(`Error ${err.message}`.red);
-        // Close server & exit process
-        server.close(() => process.exit(1));
+	console.log(`Error ${err.message}`.red);
+	// Close server & exit process
+	server.close(() => process.exit(1));
 })
