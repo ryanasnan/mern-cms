@@ -36,3 +36,11 @@
     transform: rotate(360deg);
   }
 }
+
+div.row.increase-min-height {
+  min-height: calc(75vh);
+}
+
+ul li.nav-item {
+  margin: 0 5px;
+}

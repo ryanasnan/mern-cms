@@ -1,6 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
+// eslint-disable-next-line
+import bsStyles from 'bootstrap/dist/css/bootstrap.min.css';
+// eslint-disable-next-line
+import appStyles from './styles/scss/main.scss';
+// eslint-disable-next-line
+import 'bootstrap';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
