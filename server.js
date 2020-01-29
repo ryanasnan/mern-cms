@@ -6,6 +6,8 @@ const errorHandler = require('./middlewares/error');
 const connectDB = require('./config/db');
 
 const auth = require('./routes/api/auth');
+const story = require('./routes/api/story');
+const user = require('./routes/api/user');
 
 // dotenv
 dotenv.config({path: './config/config.env'});
@@ -31,6 +33,10 @@ app.get('/', (req, res) => res.send('Hello world'));
 
 // Use routes
 app.use('/api/auth', auth);
+app.use('/api/story', story);
+app.use('/api/user', user);
+
+
 app.use(errorHandler);
 
 const port = process.env.PORT || 5000;
