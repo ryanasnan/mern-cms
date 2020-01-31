@@ -1,8 +1,17 @@
 import React, { Component, Fragment } from 'react';
 import { jpgDemoImg } from '../../utils/helper';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { setAlert, clearAlert } from '../../actions/alert';
+import { setErrors, clearErrors } from '../../actions/error';
 
 class Story extends Component {
+	constructor(props) {
+		super(props);
+		this.props.clearAlert();
+		this.props.clearErrors();
+	}
+
 	render() {
 		return (
 			<Fragment>
@@ -104,4 +113,4 @@ class Story extends Component {
 	}
 }
 
-export default Story;
+export default connect(null, { setAlert, clearAlert, setErrors, clearErrors })(Story);

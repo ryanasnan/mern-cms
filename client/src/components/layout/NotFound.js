@@ -4,7 +4,7 @@ const NotFound = () => {
 	return (
 		<div className="row increase-min-height">
 			<div className="col-md-12">
-				<h1 className='text-primary'>
+				<h1 className='text-primary text-danger'>
 					Page Not Found
       		</h1>
 				<p className='large'>Sorry, this page does not exist</p>

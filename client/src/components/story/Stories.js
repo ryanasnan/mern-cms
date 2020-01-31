@@ -1,14 +1,21 @@
 import React, { Component } from 'react';
 import { jpgDemoImg } from '../../utils/helper';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { setAlert, clearAlert } from '../../actions/alert';
+import { setErrors, clearErrors } from '../../actions/error';
 
 class Stories extends Component {
+	constructor(props) {
+		super(props);
+		this.props.clearAlert();
+		this.props.clearErrors();
+	}
 	render() {
-		
 		return (
 			<div className="row">
 				<div className="col-md-8">
-					<h5 className="font-weight-bold spanborder"><span>Featured in Science</span></h5>
+					<h5 className="font-weight-bold spanborder"><span>Random Story</span></h5>
 					<div className="card border-0 mb-5 box-shadow">
 						<div style={{ backgroundImage: `url(${jpgDemoImg(2)})`, height: '350px', backgroundSize: 'cover', backgroundRepeat: 'no-repeat' }} ></div>
 						<div className="card-body px-0 pb-0 d-flex flex-column align-items-start">
@@ -24,7 +31,7 @@ class Stories extends Component {
 							</div>
 						</div>
 					</div>
-					<h5 className="font-weight-bold spanborder"><span>Latest</span></h5>
+					<h5 className="font-weight-bold spanborder"><span>Latest Stories</span></h5>
 					<div className="mb-3 d-flex justify-content-between">
 						<div className="pr-3">
 							<h2 className="mb-1 h4 font-weight-bold">
@@ -38,7 +45,7 @@ class Stories extends Component {
                                         </div>
 							<small className="text-muted">Dec 12 · 5 min read</small>
 						</div>
-						<img height="120" src={jpgDemoImg(1)} aria-hidden alt="image post 1" />
+						<img alt="#" height="120" src={jpgDemoImg(1)} aria-hidden />
 					</div>
 					<div className="mb-3 d-flex justify-content-between">
 						<div className="pr-3">
@@ -53,7 +60,7 @@ class Stories extends Component {
                                         </div>
 							<small className="text-muted">Dec 12 · 5 min read</small>
 						</div>
-						<img height="120" src={jpgDemoImg(2)} aria-hidden alt="image post 2" />
+						<img alt="#" height="120" src={jpgDemoImg(2)} aria-hidden />
 					</div>
 					<div className="mb-3 d-flex justify-content-between">
 						<div className="pr-3">
@@ -68,12 +75,12 @@ class Stories extends Component {
                                         </div>
 							<small className="text-muted">Dec 12 · 5 min read</small>
 						</div>
-						<img height="120" src={jpgDemoImg(3)} aria-hidden alt="image post 3" />
+						<img alt="#" height="120" src={jpgDemoImg(3)} aria-hidden />
 					</div>
 				</div>
 				<div className="col-md-4 pl-4">
 					<div className="sticky-top">
-						<h5 className="font-weight-bold spanborder"><span>Popular in Science</span></h5>
+						<h5 className="font-weight-bold spanborder"><span>Popular Stories</span></h5>
 						<ol className="list-featured">
 							<li>
 								<span>
@@ -133,4 +140,5 @@ class Stories extends Component {
 	}
 }
 
-export default Stories;
+
+export default connect(null, { setAlert, clearAlert, setErrors, clearErrors })(Stories);
