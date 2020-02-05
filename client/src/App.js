@@ -3,9 +3,11 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
-import Routes from './components/routing/Routes';
 import Stories from './components/story/Stories';
 import Alert from './components/layout/Alert';
+
+import Routes from './components/routing/Routes';
+import NormalizeReduxState from './components/routing/NormalizeReduxState';
 
 import { Provider } from 'react-redux';
 import store from './store';
@@ -40,9 +42,8 @@ class App extends Component {
 					<Navbar />
 					<div className="container mt-5">
 						<Alert />
-
 						<Switch>
-							<Route exact path="/" component={Stories} />
+							<Route exact path="/" component={NormalizeReduxState(Stories, ['story'])} />
 							<Route component={Routes} />
 						</Switch>
 					</div>

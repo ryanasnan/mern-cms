@@ -79,13 +79,9 @@ ul.story-button {
 }
 ul.story-button li {
   padding: 0;
+  border: none;
   display: inline;
   margin-right: 10px;
-}
-
-ul.story-button li a, ul.story-button li span {
-  padding:10px;
-  text-decoration: none;
 }
 
 .top-user-info span {
@@ -98,11 +94,12 @@ ul.story-button li a, ul.story-button li span {
   ul.story-button {
     display: flex;
     flex-wrap: wrap;
+    border-top: 1px ridge;
+    border-bottom: 1px ridge;
   }
   ul.story-button li {
     margin: 5px 0;
     display: block;
-    text-align: center;
     height: 30px;
     flex: 50%;
   }
@@ -170,15 +167,19 @@ div.row.filter-data .limit {
   max-width: 110px;
 }
 
+div.row.filter-data .sort {
+  max-width: 200px;
+}
+
 
 div.medium-editor-element p {
   font-family: "sans-serif", "Georgia";
   font-size: 20px;
   line-height: 1.7;
+  border-bottom: 1px ridge;
 }
 
 input.input-title-story {
-  margin-bottom: 20px; 
   width: 100%; 
   border: 0; 
   outline: 0; 
@@ -197,4 +198,15 @@ input.input-title-story::placeholder {
 
 article.article-post p {
   text-align: justify;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.invalid-feedback-story {
+  width: 100%;
+  margin-top: 0.25rem;
+  font-size: 85%;
+  color: #ea2f65;
 }

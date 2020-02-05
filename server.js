@@ -31,7 +31,7 @@ if (process.env.NODE_ENV == 'development') {
 
 app.get('/', (req, res) => res.send('Hello world'));
 
-// Use routes
+// Use routes middleware
 app.use('/api/auth', auth);
 app.use('/api/story', story);
 app.use('/api/user', user);

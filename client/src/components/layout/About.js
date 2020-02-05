@@ -34,6 +34,10 @@ class About extends Component {
 										<p>
 											I created this app about 2 weeks, and of course the most hard part is front end implementation.
 											Maybe i need 10 days to implementate, create new page and fixing the front end code, so it will better to be used.
+											The MOST HARD PART is implemented new react lifecycle getDerivedStateFromProps.
+											React announce about deprecating method componentWillReceiveProps and change to getDerivedStateFromProps, well the big problem is the getDerivedStateFromProps always get previous props.
+											And this will cause error on navigating browser (go and back).
+											I need to research this new behavior and because of that big change i need 3 days to solve this problem.
 										</p>
 										<p>
 											I have added some feature on this app, you can try on every page, here is the list:
@@ -67,7 +71,7 @@ class About extends Component {
 											FYI my app using loading to waiting the process of load/render component. The main problem with javascript language is the code running asynchronous, which is there are no waiting syntax to be done, this is very dangerous to load component without any load time. And thats why im using loading in every process get/set data. 
 											So, if the authentication state is empty, when access private route like create story or view profile will never rendering at first, but will be redirect to main page.
 											This is applicable on authorization process too.
-											You will be see loading spinner in some page, exp login or when the component load data. The loading data was given in route which is need an authentication or authorization.
+											You will see loading spinner in some page, exp login or when the component load data. 
 										</p>
 										<p>3. Pagination And Sorting</p>
 										<p>

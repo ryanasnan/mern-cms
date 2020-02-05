@@ -9,7 +9,8 @@
     "start": "node server.js",
     "server": "nodemon server.js",
     "client": "npm start --prefix client",
-    "dev": "concurrently \"npm run server\" \"npm run client\" "
+    "dev": "concurrently \"npm run server\" \"npm run client\" ",
+    "seed-story": "cd ./seeder && node story.js"
   },
   "author": "ryan asnan",
   "license": "MIT",
@@ -18,6 +19,7 @@
     "concurrently": "^5.1.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "faker": "^4.1.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.8.10",
     "morgan": "^1.9.1",

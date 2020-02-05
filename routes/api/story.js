@@ -3,6 +3,7 @@ const router = express.Router({ mergeParams: true });
 const {
 	getStories,
 	getStory,
+	getStoryBySlug,
 	createStory,
 	updateStory,
 	deleteStory
@@ -20,5 +21,9 @@ router
 	.get(getStory)
 	.put(authWithPassport, updateStory)
 	.delete(authWithPassport, deleteStory);
+
+router
+	.route('/slug/:slug')
+	.get(getStoryBySlug);
 
 module.exports = router;

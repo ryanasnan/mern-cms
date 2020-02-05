@@ -11,6 +11,8 @@ import Authorize from '../layout/Authorize';
 
 import AuthRoute from './AuthRoute';
 import PrivateRoute from './PrivateRoute';
+import NormalizeReduxState from './NormalizeReduxState';
+
 import Profile from '../profile/Profile';
 
 const Routes = () => {
@@ -19,13 +21,15 @@ const Routes = () => {
 			<Switch>
 				<AuthRoute exact path="/login" component={Login} />
 				<AuthRoute exact path="/register" component={Register} />
-				<Route exact path="/story" component={Story} />
+				<Route exact path="/story/:slug" component={NormalizeReduxState(Story, ['story'])} />
 				<Route exact path="/about" component={About} />
 				<PrivateRoute exact path="/profile" component={Profile} />
-				<PrivateRoute exact path="/newstory" component={CreateEditStory} />
-				<PrivateRoute exact path="/mystory" component={MyStory} />
+				<PrivateRoute exact path="/newstory" component={NormalizeReduxState(CreateEditStory, ['story']) } />
+				<PrivateRoute exact path="/editstory/:slug" component={NormalizeReduxState(CreateEditStory, ['story'])} />
+				<PrivateRoute exact path="/mystory" component={NormalizeReduxState(MyStory, ['story'])} />
 
 				<Route exact path="/authorize" component={Authorize} />
+				<Route exact path="/notfound" component={NotFound} />
 				<Route component={NotFound} />
 			</Switch>
 

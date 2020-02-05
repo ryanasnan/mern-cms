@@ -5,16 +5,16 @@ exports.advancedModelResults = async (model, req, filter = {}, populate = {}) =>
 
 	// Select Fields
 	if (req.query.select) {
-			const fields = req.query.select.split(',').join(' ');
-			query = query.select(fields);
+		const fields = req.query.select.split(',').join(' ');
+		query = query.select(fields);
 	}
 
 	// Sort
 	if (req.query.sort) {
-			const sortBy = req.query.sort.split(',').join(' ');
-			query = query.sort(sortBy);
+		const sortBy = req.query.sort.split(',').join(' ');
+		query = query.sort(sortBy);
 	} else {
-			query = query.sort('-createdAt');
+		query = query.sort('-createdAt');
 	}
 
 	// Pagination
@@ -22,12 +22,16 @@ exports.advancedModelResults = async (model, req, filter = {}, populate = {}) =>
 	const limit = parseInt(req.query.limit, 10) || 25;
 	const startIndex = (page - 1) * limit;
 	const endIndex = page * limit;
-	const total = await model.countDocuments();
+
+	// to get total document with filter(find)
+	const countTotalDocuments = await model.find(filter).countDocuments(function (err, count) {
+		// statement to manipulate the count (optional)
+	});
 
 	query = query.skip(startIndex).limit(limit);
 
 	if (populate) {
-			query = query.populate(populate);
+		query = query.populate(populate);
 	}
 
 	// Executing query
@@ -35,25 +39,30 @@ exports.advancedModelResults = async (model, req, filter = {}, populate = {}) =>
 
 	// Pagination result
 	const pagination = {};
-
-	if (endIndex < total) {
-			pagination.next = {
-					page: page + 1,
-					limit
-			};
+	if (endIndex < countTotalDocuments) {
+		pagination.next = {
+			page: page + 1,
+			limit
+		};
 	}
 
+	pagination.currentPage = {
+		page,
+		limit
+	};
+
 	if (startIndex > 0) {
-			pagination.prev = {
-					page: page - 1,
-					limit
-			};
+		pagination.prev = {
+			page: page - 1,
+			limit
+		};
 	}
 
 	return {
-			success: true,
-			count: results.length,
-			pagination,
-			results
+		success: true,
+		count: results.length,
+		totalDocument: countTotalDocuments,
+		pagination,
+		results
 	};
 };

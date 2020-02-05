@@ -4,41 +4,92 @@ import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { setAlert, clearAlert } from '../../actions/alert';
 import { setErrors, clearErrors } from '../../actions/error';
+import { getStoryBySlug } from '../../actions/story';
+import { isObjectEmpty, isNullOrEmptyObject } from '../../utils/helper';
+import parse from 'html-react-parser';
+import moment from 'moment';
 
 class Story extends Component {
 	constructor(props) {
 		super(props);
+		this.state = {
+			slug: '',
+			title: '',
+			text: '',
+			user: '',
+			createdAt: '',
+		}
 		this.props.clearAlert();
 		this.props.clearErrors();
 	}
 
+	static getDerivedStateFromProps(nextProps, prevState) {
+		let stateObj = {};
+
+		if (!isObjectEmpty(nextProps.match.params)) {
+			stateObj = {
+				...stateObj,
+				slug: nextProps.match.params.slug
+			}
+		}
+
+		if (!isNullOrEmptyObject(nextProps.story.data)) {
+			stateObj = {
+				...stateObj,
+				title: nextProps.story.data.results.title,
+				text: nextProps.story.data.results.text,
+				user: nextProps.story.data.results.user,
+				createdAt: nextProps.story.data.results.createdAt
+			}
+		}
+
+		return stateObj;
+	}
+
+	componentDidMount() {
+		const { slug } = this.state;
+
+		this.props.getStoryBySlug(slug, this.props.history);
+	}
+
 	render() {
+		const { title, text, user, createdAt } = this.state;
+
 		return (
 			<Fragment>
 				<div className="row">
 					<div className="col-md-12">
+
 						<div className="container pt-4 pb-4">
-							<div className="row justify-content-center mb-3">
-								<div className="col-md-12 col-lg-10">
-									<div style={{ backgroundImage: `url(${jpgDemoImg(2)})`, height: '500px', backgroundSize: 'cover', backgroundRepeat: 'no-repeat' }}></div>
+							<div className="jumbotron jumbotron-fluid mb-3 pl-0 pt-0 pb-0 bg-white position-relative">
+								<div className="h-100 tofront">
+									<div className="row justify-content-between">
+										<div className="col-md-6 align-self-center">
+											<p className="text-uppercase font-weight-bold">
+												<Link className="text-danger" to="/">Stories</Link>
+											</p>
+											<h1 className="display-4 secondfont mb-3 font-weight-bold">{title}</h1>
+											<div className="d-flex align-items-center">
+												<img className="rounded-circle" alt="#" height="70" src="https://www.w3schools.com/howto/img_avatar.png" aria-hidden />
+
+												<small className="ml-2">{user.name}<span className="text-muted d-block">{moment(createdAt).format('ll')}</span>
+												</small>
+											</div>
+										</div>
+										<div className="col-md-6 pr-0 text-right">
+											<img alt="#" height="300" src={jpgDemoImg(1)} aria-hidden />
+										</div>
+									</div>
 								</div>
 							</div>
+						</div>
+
+						<div className="container pt-4 pb-4">
 
 							<div className="row justify-content-center">
-								<div className="col-md-12 col-lg-10">
+								<div className="col-md-12 col-lg-12">
 									<article className="article-post">
-										<p>
-											Holy grail funding non-disclosure agreement advisor ramen bootstrapping ecosystem. Beta crowdfunding iteration assets business plan paradigm shift stealth mass market seed money rockstar niche market marketing buzz market.
-									</p>
-										<p>
-											Burn rate release facebook termsheet equity technology. Interaction design rockstar network effects handshake creative startup direct mailing. Technology influencer direct mailing deployment return on investment seed round.
-									</p>
-										<p>
-											Termsheet business model canvas user experience churn rate low hanging fruit backing iteration buyer seed money. Virality release launch party channels validation learning curve paradigm shift hypotheses conversion. Stealth leverage freemium venture startup business-to-business accelerator market.
-									</p>
-										<p>
-											Freemium non-disclosure agreement lean startup bootstrapping holy grail ramen MVP iteration accelerator. Strategy market ramen leverage paradigm shift seed round entrepreneur crowdfunding social proof angel investor partner network virality.
-									</p>
+										{parse(text)}
 									</article>
 								</div>
 							</div>
@@ -106,11 +157,16 @@ class Story extends Component {
 								</div>
 							</div>
 						</div>
-				</div>
+					</div>
 				</div>
 			</Fragment >
 		)
 	}
 }
 
-export default connect(null, { setAlert, clearAlert, setErrors, clearErrors })(Story);
+const mapStateToProps = (state) => ({
+	auth: state.auth,
+	story: state.story
+})
+
+export default connect(mapStateToProps, { setAlert, clearAlert, getStoryBySlug, setErrors, clearErrors })(Story);
