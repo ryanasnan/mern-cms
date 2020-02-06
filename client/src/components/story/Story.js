@@ -33,13 +33,13 @@ class Story extends Component {
 			}
 		}
 
-		if (!isNullOrEmptyObject(nextProps.story.data)) {
+		if (!isNullOrEmptyObject(nextProps.story.story.data)) {
 			stateObj = {
 				...stateObj,
-				title: nextProps.story.data.results.title,
-				text: nextProps.story.data.results.text,
-				user: nextProps.story.data.results.user,
-				createdAt: nextProps.story.data.results.createdAt
+				title: nextProps.story.story.data.results.title,
+				text: nextProps.story.story.data.results.text,
+				user: nextProps.story.story.data.results.user,
+				createdAt: nextProps.story.story.data.results.createdAt
 			}
 		}
 

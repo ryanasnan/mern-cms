@@ -29,8 +29,8 @@ class CreateEditStory extends Component {
 		// props story data will be null if in create mode, otherwise will be object
 		// if the props story empty object, page will be redirected to notfound page 
 
-		if (!isNullOrEmptyObject(nextProps.story.data)) {
-			if (nextProps.auth.user._id !== nextProps.story.data.results.user._id) {
+		if (!isNullOrEmptyObject(nextProps.story.story.data)) {
+			if (nextProps.auth.user._id !== nextProps.story.story.data.results.user._id) {
 				nextProps.history.push('/authorize');
 				nextProps.setAlert('You not owner of this resource', 'secondary');
 			}
@@ -38,8 +38,8 @@ class CreateEditStory extends Component {
 			if (prevState.title === '' && prevState.text === '') {
 				stateObj = {
 					...stateObj,
-					title: nextProps.story.data.results.title,
-					text: nextProps.story.data.results.text
+					title: nextProps.story.story.data.results.title,
+					text: nextProps.story.story.data.results.text
 				}
 
 			}
@@ -52,7 +52,7 @@ class CreateEditStory extends Component {
 			}
 		}
 
-		if ((prevState.storySlug) && nextProps.story.data == null) {
+		if ((prevState.storySlug) && nextProps.story.story.data == null) {
 			nextProps.history.push('/notfound');
 			nextProps.setAlert('The resource not found', 'secondary');
 		}
@@ -75,8 +75,8 @@ class CreateEditStory extends Component {
 		e.preventDefault();
 
 		let storyId;
-		if (!isNullOrEmptyObject(this.props.story.data)) {
-			storyId = this.props.story.data.results._id;
+		if (!isNullOrEmptyObject(this.props.story.story.data)) {
+			storyId = this.props.story.story.data.results._id;
 		}
 
 		const storyData = {

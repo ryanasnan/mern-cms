@@ -109,6 +109,13 @@ ul.story-button li {
   }
 }
 
+@media only screen and (max-width: 767px) {
+  div.row.responsive-column-reverse {
+    flex-direction: column-reverse;
+  }
+}
+
+
 @media only screen and (max-width: 990px) {
   .flex-item-two-columns {
     flex: 100%;

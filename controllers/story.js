@@ -42,7 +42,7 @@ exports.getStoryBySlug = asyncHandler(async (req, res, next) => {
 		select: 'name avatar'
 	});
 
-	
+
 	if (!story) {
 		return next(
 			new ErrorResponse(`Story not found with slug of ${req.params.slug}`, 404)
@@ -50,6 +50,18 @@ exports.getStoryBySlug = asyncHandler(async (req, res, next) => {
 	}
 	res.status(200).json({ success: true, results: story });
 });
+
+exports.getRandomStory = asyncHandler(async (req, res, next) => {
+	const storyCount = await Story.countDocuments();
+	const random = await Math.floor(Math.random() * storyCount);
+
+	const randomStory = await Story.findOne().skip(random).populate({
+		path: 'user',
+		select: 'name avatar'
+	});
+
+	res.status(200).json({ success: true, results: randomStory })
+})
 
 exports.createStory = asyncHandler(async (req, res, next) => {
 	// Add user to req.body
@@ -65,7 +77,7 @@ exports.createStory = asyncHandler(async (req, res, next) => {
 
 exports.updateStory = asyncHandler(async (req, res, next) => {
 	let story = await Story.findById(req.params.id);
-	
+
 	if (!story) {
 		return next(
 			new ErrorResponse(`Story not found with id of ${req.params.id}`, 404)

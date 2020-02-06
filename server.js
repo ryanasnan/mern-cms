@@ -8,6 +8,8 @@ const connectDB = require('./config/db');
 const auth = require('./routes/api/auth');
 const story = require('./routes/api/story');
 const user = require('./routes/api/user');
+const { getRandomStory } = require('./controllers/story');
+const path = require('path');
 
 // dotenv
 dotenv.config({ path: './config/config.env' });
@@ -23,6 +25,7 @@ connectDB();
 app.use(passport.initialize());
 
 require('./config/passport')(passport);
+app.use(express.static(path.join(__dirname, 'client/build')));
 
 // dev logging middleware
 if (process.env.NODE_ENV == 'development') {
@@ -35,7 +38,7 @@ app.get('/', (req, res) => res.send('Hello world'));
 app.use('/api/auth', auth);
 app.use('/api/story', story);
 app.use('/api/user', user);
-
+app.get('/api/randomstory', getRandomStory)
 
 app.use(errorHandler);
 

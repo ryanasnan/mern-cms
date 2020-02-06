@@ -6,28 +6,54 @@ import {
 	from '../actions/types';
 
 const initialState = {
-	data: {},
-	loading: true
+	stories: {
+		data: {},
+		loading: true
+	},
+	story: {
+		data: {},
+		loading: true
+	},
+	popularStories: {
+		data: {},
+		loading: true
+	},
+	randomStory: {
+		data: {},
+		loading: true
+	},
+	relatedStories: {
+		data: {},
+		loading: true
+	},
 };
 
 export default function (state = initialState, action) {
-	const { type, payload } = action;
+	const { type, payload, stateOption } = action;
 
-	switch (type) {
-		case STORY_LOADING:
-			return {
-				...state,
-				loading: true
-			}
-		case GET_STORY:
-			return {
-				...state,
-				data: payload,
-				loading: false
-			}
-		case RESET_STORY:
-			return initialState;
-		default:
-			return state;
+	if (state[stateOption] !== 'undefined') {
+
+		let objState = { ...state };
+
+		switch (type) {
+			case STORY_LOADING:
+				objState[stateOption] = {
+					...objState[stateOption],
+					loading: true
+				};
+				return objState;
+			case GET_STORY:
+				objState[stateOption] = {
+					data: payload,
+					loading: false
+				};
+				return objState;
+			case RESET_STORY:
+				return initialState;
+			default:
+				return state;
+		}
+
 	}
+
 }

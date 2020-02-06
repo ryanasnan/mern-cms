@@ -12,7 +12,8 @@ import {
 
 // Get All Stories
 export const getStories = (objParams = null) => async (dispatch) => {
-	dispatch(setStoryLoading());
+	const stateOption = 'stories';
+	dispatch(setStoryLoading(stateOption));
 	try {
 		let queryString = '';
 		if (objParams) {
@@ -22,20 +23,23 @@ export const getStories = (objParams = null) => async (dispatch) => {
 		const res = await axios.get(`/api/story?${queryString}`);
 		dispatch({
 			type: GET_STORY,
-			payload: res.data
+			payload: res.data,
+			stateOption: stateOption
 		});
 
 	} catch (error) {
 		dispatch({
 			type: GET_STORY,
-			payload: null
+			payload: null,
+			stateOption: stateOption
 		});
 	}
 }
 
 // Get Story from User 
 export const getUserStories = (objParams = null, userId) => async (dispatch) => {
-	dispatch(setStoryLoading());
+	const stateOption = 'stories';
+	dispatch(setStoryLoading(stateOption));
 	try {
 		let queryString = '';
 		if (objParams) {
@@ -45,13 +49,15 @@ export const getUserStories = (objParams = null, userId) => async (dispatch) => 
 		const res = await axios.get(`/api/user/${userId}/story?${queryString}`);
 		dispatch({
 			type: GET_STORY,
-			payload: res.data
+			payload: res.data,
+			stateOption: stateOption
 		});
 
 	} catch (error) {
 		dispatch({
 			type: GET_STORY,
-			payload: null
+			payload: null,
+			stateOption: stateOption
 		});
 	}
 }
@@ -78,13 +84,15 @@ export const getStory = (id, history) => async (dispatch) => {
 
 // Get Story by Slug
 export const getStoryBySlug = (slug, history) => async (dispatch) => {
-	dispatch(setStoryLoading());
+	const stateOption = 'story';
+	dispatch(setStoryLoading(stateOption));
 	try {
 		const res = await axios.get(`/api/story/slug/${slug}`);
 
 		dispatch({
 			type: GET_STORY,
-			payload: res.data
+			payload: res.data,
+			stateOption: stateOption
 		});
 	} catch (error) {
 		dispatch(setAlert('The story does not exist', 'danger'));
@@ -92,14 +100,37 @@ export const getStoryBySlug = (slug, history) => async (dispatch) => {
 
 		dispatch({
 			type: GET_STORY,
-			payload: null
+			payload: null,
+			stateOption: stateOption
 		});
+	}
+}
+
+
+export const getRandomStory = () => async (dispatch) => {
+	const stateOption = 'randomStory';
+	dispatch(setStoryLoading(stateOption));
+	try {
+		const res = await axios.get('/api/randomstory');
+		
+		dispatch({
+			type: GET_STORY,
+			payload: res.data,
+			stateOption: stateOption
+		})
+	} catch (err) {
+		dispatch({
+			type: GET_STORY,
+			payload: null,
+			stateOption: stateOption
+		})
 	}
 }
 
 // Create story
 export const createStory = (storyData, history) => async (dispatch) => {
-	dispatch(setStoryLoading);
+	const stateOption = 'story';
+	dispatch(setStoryLoading(stateOption));
 	try {
 		await axios.post('/api/story', storyData);
 
@@ -119,7 +150,8 @@ export const createStory = (storyData, history) => async (dispatch) => {
 
 // Update story
 export const updateStory = (id, storyData, history) => async (dispatch) => {
-	dispatch(setStoryLoading);
+	const stateOption = 'story';
+	dispatch(setStoryLoading(stateOption));
 	try {
 		await axios.put(`/api/story/${id}`, storyData);
 
@@ -139,7 +171,8 @@ export const updateStory = (id, storyData, history) => async (dispatch) => {
 
 // Delete story
 export const deleteStory = (id) => async (dispatch) => {
-	dispatch(setStoryLoading);
+	const stateOption = 'story';
+	dispatch(setStoryLoading(stateOption));
 	try {
 		await axios.delete(`/api/story/${id}`);
 	} catch (err) {
@@ -155,9 +188,10 @@ export const deleteStory = (id) => async (dispatch) => {
 }
 
 // Set loading state
-export const setStoryLoading = () => {
+export const setStoryLoading = (stateOption) => {
 	return {
-		type: STORY_LOADING
+		type: STORY_LOADING,
+		stateOption: stateOption
 	};
 };
 

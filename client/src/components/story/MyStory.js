@@ -44,24 +44,24 @@ class MyStory extends Component {
 	static getDerivedStateFromProps(nextProps, prevState) {
 		let stateObj = {};
 
-		if (!isObjectEmpty(nextProps.story.data) && !nextProps.story.loading && nextProps.history.action) {
+		if (!isObjectEmpty(nextProps.story.stories.data) && !nextProps.story.stories.loading && nextProps.history.action) {
 
 			stateObj = {
 				...stateObj,
 				myStories: {
 					...prevState.myStories,
-					data: nextProps.story.data.results,
+					data: nextProps.story.stories.data.results,
 					dataManipulationStatement: {
 						...prevState.myStories.dataManipulationStatement,
-						currentPage: nextProps.story.data.pagination.currentPage.page,
-						totalDocument: nextProps.story.data.totalDocument,
+						currentPage: nextProps.story.stories.data.pagination.currentPage.page,
+						totalDocument: nextProps.story.stories.data.totalDocument,
 						prevPageDirection: {
-							hasPrevPage: nextProps.story.data.pagination.hasOwnProperty('prev') ? true : false,
-							page: nextProps.story.data.pagination.hasOwnProperty('prev') ? nextProps.story.data.pagination.prev.page : null
+							hasPrevPage: nextProps.story.stories.data.pagination.hasOwnProperty('prev') ? true : false,
+							page: nextProps.story.stories.data.pagination.hasOwnProperty('prev') ? nextProps.story.stories.data.pagination.prev.page : null
 						},
 						nextPageDirection: {
-							hasNextPage: nextProps.story.data.pagination.hasOwnProperty('next') ? true : false,
-							page: nextProps.story.data.pagination.hasOwnProperty('next') ? nextProps.story.data.pagination.next.page : null
+							hasNextPage: nextProps.story.stories.data.pagination.hasOwnProperty('next') ? true : false,
+							page: nextProps.story.stories.data.pagination.hasOwnProperty('next') ? nextProps.story.stories.data.pagination.next.page : null
 						}
 					}
 				}
@@ -211,8 +211,7 @@ class MyStory extends Component {
 	}
 
 	render() {
-
-		const { loading: loadingUserStory } = this.props.story;
+		const { loading: loadingUserStory } = this.props.story.stories;
 		const { data: myStoriesData, dataManipulationStatement: dms } = this.state.myStories;
 
 		return (

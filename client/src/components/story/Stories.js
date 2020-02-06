@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { jpgDemoImg } from '../../utils/helper';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { setAlert, clearAlert } from '../../actions/alert';
 import { setErrors, clearErrors } from '../../actions/error';
-import { getStories, getStory, resetStory } from '../../actions/story';
+import { getStories, getStory, resetStory, getRandomStory } from '../../actions/story';
 import { isObjectEmpty, removeTagHtml, preventDuplicateObjectInStoriesArray } from '../../utils/helper';
 import Spinner from '../layout/Spinner';
 import moment from 'moment';
@@ -23,6 +23,9 @@ class Stories extends Component {
 					limit: 5,
 					hasMore: false
 				}
+			},
+			randomStory: {
+				data: {}
 			}
 		}
 		this.props.clearAlert();
@@ -55,23 +58,36 @@ class Stories extends Component {
 			};
 		}
 
-		if (!isObjectEmpty(nextProps.story.data) && !nextProps.story.loading) {
+		if (!isObjectEmpty(nextProps.story.stories.data) && !nextProps.story.stories.loading) {
 			let hasMore = false;
-			if (nextProps.story.data.pagination.hasOwnProperty('next')) {
+			if (nextProps.story.stories.data.pagination.hasOwnProperty('next')) {
 				hasMore = true;
 			}
 			stateObj = {
 				...stateObj,
 				latestStories: {
 					...prevState.latestStories,
-					data: preventDuplicateObjectInStoriesArray([...prevState.latestStories.data], [...nextProps.story.data.results]),
+					data: preventDuplicateObjectInStoriesArray([...prevState.latestStories.data], [...nextProps.story.stories.data.results]),
 					dataManipulationStatement: {
 						...prevState.latestStories.dataManipulationStatement,
-						currentPage: nextProps.story.data.pagination.currentPage.page,
+						currentPage: nextProps.story.stories.data.pagination.currentPage.page,
 						hasMore
 					}
 				}
 			}
+		}
+
+		if (!isObjectEmpty(nextProps.story.randomStory.data && !nextProps.story.randomStory.loading)) {
+			if (isObjectEmpty(prevState.randomStory.data)) {
+				stateObj = {
+					...stateObj,
+					randomStory: {
+						data: nextProps.story.randomStory.data
+					}
+				}
+
+			}
+
 		}
 
 		return stateObj;
@@ -88,6 +104,7 @@ class Stories extends Component {
 			select,
 			limit
 		});
+		this.loadRandomStory();
 	}
 
 	componentWillUnmount() {
@@ -98,8 +115,52 @@ class Stories extends Component {
 		this.props.getStories(urlParams);
 	}
 
+	loadRandomStory = () => {
+		this.props.getRandomStory();
+	}
+
+	renderRandomStory = (story, loading) => {
+
+		if (loading) {
+			return (<Spinner />);
+		}
+		else {
+			const storyTextWithoutTag = removeTagHtml(story.text);
+
+			const styleBackgroundImage = {
+				backgroundImage: `url(${jpgDemoImg(2)})`,
+				height: '350px',
+				backgroundSize: 'cover',
+				backgroundRepeat: 'no-repeat'
+			}
+
+			return (
+				<Fragment>
+					<h5 className="font-weight-bold spanborder"><span>Random Story</span></h5>
+					<div className="card border-0 mb-5 box-shadow">
+						<div style={styleBackgroundImage} >
+							
+						</div>
+						<div className="card-body px-0 pb-0 d-flex flex-column align-items-start">
+							<h2 className="h2 font-weight-bold">
+								<Link className="text-dark" to={{ pathname: `/story/${story.slug}` }}>{story.title}</Link>
+							</h2>
+							{storyTextWithoutTag.length < 200 ? storyTextWithoutTag : storyTextWithoutTag.substring(0, 200) + '...'}
+							<div>
+								<small className="d-block"><Link className="text-muted" to="#">{story.user.name}</Link></small>
+								<small className="text-muted">{moment(story.createdAt).format('ll')}</small>
+							</div>
+						</div>
+					</div>
+				</Fragment>
+			);
+		}
+
+
+	}
+
 	renderLatestStories(story, loadingLatestStories) {
-		const storyTextWithoutTag = removeTagHtml(story.text); 
+		const storyTextWithoutTag = removeTagHtml(story.text);
 
 		return (
 			<div key={story._id} className="mb-3 d-flex justify-content-between">
@@ -122,28 +183,13 @@ class Stories extends Component {
 	}
 
 	render() {
-		const loadingLatestStories = this.props.story.loading;
-		const { latestStories: { data: latestStoriesData } } = this.state;
+		const { stories: { loading: loadingLatestStories }, randomStory: { loading: loadingRandomStory } } = this.props.story;
+		const { latestStories: { data: latestStoriesData }, randomStory: { data: { results: randomStory } } } = this.state;
 
 		return (
-			<div className="row">
+			<div className="row responsive-column-reverse">
 				<div className="col-md-8">
-					<h5 className="font-weight-bold spanborder"><span>Shuffle Story</span></h5>
-					<div className="card border-0 mb-5 box-shadow">
-						<div style={{ backgroundImage: `url(${jpgDemoImg(2)})`, height: '350px', backgroundSize: 'cover', backgroundRepeat: 'no-repeat' }} ></div>
-						<div className="card-body px-0 pb-0 d-flex flex-column align-items-start">
-							<h2 className="h2 font-weight-bold">
-								<Link className="text-dark" to="./story">Brain Stimulation Relieves Depression Symptoms</Link>
-							</h2>
-							<p className="card-text">
-								Researchers have found an effective target in the brain for electrical stimulation to improve mood in people suffering from depression.
-                            </p>
-							<div>
-								<small className="d-block"><Link className="text-muted" to="./author.html">Favid Rick</Link></small>
-								<small className="text-muted">Dec 12 · 5 min read</small>
-							</div>
-						</div>
-					</div>
+					{this.renderRandomStory(randomStory, loadingRandomStory)}
 
 					<h5 className="font-weight-bold spanborder"><span>Latest Stories</span></h5>
 					{_.map(latestStoriesData, story => {
@@ -223,4 +269,4 @@ const mapStateToProps = state => ({
 });
 
 
-export default connect(mapStateToProps, { preventDuplicateObjectInStoriesArray, setAlert, clearAlert, setErrors, clearErrors, getStories, getStory, resetStory })(Stories);
+export default connect(mapStateToProps, { preventDuplicateObjectInStoriesArray, setAlert, clearAlert, setErrors, clearErrors, getStories, getStory, resetStory, getRandomStory })(Stories);
