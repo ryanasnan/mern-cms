@@ -11,7 +11,7 @@ const user = require('./routes/api/user');
 const { getRandomStory } = require('./controllers/story');
 const path = require('path');
 
-// dotenv
+// dotenv (for load the environment setting and insert into process.env)
 dotenv.config({ path: './config/config.env' });
 
 const app = express();
@@ -25,14 +25,14 @@ connectDB();
 app.use(passport.initialize());
 
 require('./config/passport')(passport);
-app.use(express.static(path.join(__dirname, 'client/build')));
 
 // dev logging middleware
 if (process.env.NODE_ENV == 'development') {
 	app.use(morgan('dev'));
 }
 
-app.get('/', (req, res) => res.send('Hello world'));
+// if the application deployed, DO NOT using this route, because the path root ('/') must be redirect on /index.html
+//app.get('/', (req, res) => res.send('Hello world'));
 
 // Use routes middleware
 app.use('/api/auth', auth);
@@ -41,6 +41,18 @@ app.use('/api/user', user);
 app.get('/api/randomstory', getRandomStory)
 
 app.use(errorHandler);
+
+// if the application deployed('production'), use this to access static page (front end) and to create all the path route redirect on front end html
+if (process.env.NODE_ENV === 'production') {
+	// to access static page DO NOT use the html file, ext 'client/build/index.html'
+	app.use(express.static(path.join(__dirname, 'client/build')));
+
+	// to access in all route path DO NOT use the directory, exp '/client/build'
+	app.get('*', (req, res) => {
+		res.sendFile(path.join(__dirname + '/client/build/index.html'));
+	});
+}
+
 
 const port = process.env.PORT || 5000;
 
