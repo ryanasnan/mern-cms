@@ -16,6 +16,7 @@ class Story extends Component {
 			slug: '',
 			title: '',
 			text: '',
+			picture: {},
 			user: '',
 			createdAt: '',
 		}
@@ -38,6 +39,7 @@ class Story extends Component {
 				...stateObj,
 				title: nextProps.story.story.data.results.title,
 				text: nextProps.story.story.data.results.text,
+				picture: nextProps.story.story.data.results.picture,
 				user: nextProps.story.story.data.results.user,
 				createdAt: nextProps.story.story.data.results.createdAt
 			}
@@ -53,7 +55,7 @@ class Story extends Component {
 	}
 
 	render() {
-		const { title, text, user, createdAt } = this.state;
+		const { title, text, user, picture, createdAt } = this.state;
 
 		return (
 			<Fragment>
@@ -70,14 +72,14 @@ class Story extends Component {
 											</p>
 											<h1 className="display-4 secondfont mb-3 font-weight-bold">{title}</h1>
 											<div className="d-flex align-items-center">
-												<img className="rounded-circle" alt="#" height="70" src="https://www.w3schools.com/howto/img_avatar.png" aria-hidden />
+												<img className="rounded-circle extra-small-thumbnail" alt="#" src="https://www.w3schools.com/howto/img_avatar.png" aria-hidden />
 
 												<small className="ml-2">{user.name}<span className="text-muted d-block">{moment(createdAt).format('ll')}</span>
 												</small>
 											</div>
 										</div>
 										<div className="col-md-6 pr-0 text-right">
-											<img alt="#" height="300" src={jpgDemoImg(1)} aria-hidden />
+											<img alt="#" height="300" src={`/${picture.directoryPath}/${picture.fileName}`} aria-hidden />
 										</div>
 									</div>
 								</div>

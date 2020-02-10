@@ -130,13 +130,17 @@ export const getRandomStory = () => async (dispatch) => {
 // Create story
 export const createStory = (storyData, history) => async (dispatch) => {
 	const stateOption = 'story';
+	const config = {     
+		headers: { 'content-type': 'multipart/form-data' }
+	}
 	dispatch(setStoryLoading(stateOption));
 	try {
-		await axios.post('/api/story', storyData);
+		await axios.post('/api/story', storyData, config);
 
 		await history.push('/mystory');
 		await dispatch(setAlert('Your story has successfully published', 'info'));
 	} catch (err) {
+		console.log(err.response);
 		const errors = err.response.data.error;
 		if (errors) {
 			const inputError = !isObjectEmpty(errors.details) ? errors.details : {};
@@ -149,11 +153,15 @@ export const createStory = (storyData, history) => async (dispatch) => {
 }
 
 // Update story
-export const updateStory = (id, storyData, history) => async (dispatch) => {
+export const updateStory = (id, storyData, hasNewImage=false, history) => async (dispatch) => {
 	const stateOption = 'story';
+	let queryString = '';
+	if(hasNewImage) {
+		queryString = `has_new_image=${hasNewImage}`;
+	}	
 	dispatch(setStoryLoading(stateOption));
 	try {
-		await axios.put(`/api/story/${id}`, storyData);
+		await axios.put(`/api/story/${id}?${queryString}`, storyData);
 
 		await history.push('/mystory');
 		await dispatch(setAlert('Your story has successfully updated', 'info'));

@@ -17,6 +17,11 @@ class CreateEditStory extends Component {
 			title: '',
 			text: '',
 			storySlug: '',
+			picture: {
+				newInputSingleFile: {},
+				previewURL: '',
+				showPreview: false
+			},
 			errors: {}
 		}
 		this.props.clearAlert();
@@ -41,7 +46,17 @@ class CreateEditStory extends Component {
 					title: nextProps.story.story.data.results.title,
 					text: nextProps.story.story.data.results.text
 				}
+			}
 
+			if (prevState.picture.previewURL === '' && nextProps.story.story.data.results.picture !== '') {
+				stateObj = {
+					...stateObj,
+					picture: {
+						...prevState.picture,
+						previewURL: `/${nextProps.story.story.data.results.picture.directoryPath}/${nextProps.story.story.data.results.picture.fileName}`,
+						showPreview: true
+					}
+				}
 			}
 		}
 
@@ -79,29 +94,62 @@ class CreateEditStory extends Component {
 			storyId = this.props.story.story.data.results._id;
 		}
 
-		const storyData = {
+		let storyData = {
 			title: this.state.title,
 			text: this.state.text
 		};
 
 		const { errors, isValid } = validateStoryInput(storyData);
-		// check input validation
+		// check input validation (the image will be validate on back end)
 		if (!isValid) {
 			this.props.setErrors(errors);
 			this.props.setAlert('Error Input Validation', 'danger');
 		} else {
+			let formStory = new FormData();
+			formStory.append('title', storyData.title);
+			formStory.append('text', storyData.text);
+
+			let hasNewImage = false;
+			if (!isObjectEmpty(this.state.picture.newInputSingleFile)) {
+				formStory.append('picture', this.state.picture.newInputSingleFile);
+				hasNewImage = true;
+			}
+
 			if (typeof storyId !== 'undefined') {
-				this.props.updateStory(storyId, storyData, this.props.history);
+				this.props.updateStory(storyId, formStory, hasNewImage, this.props.history);
 			}
 			else {
-				this.props.createStory(storyData, this.props.history);
+				this.props.createStory(formStory, this.props.history);
 			}
 		}
-
 	}
 
 	loadStory(slug) {
 		this.props.getStoryBySlug(slug, this.props.history);
+	}
+
+	previewImage = (e) => {
+		const file = e.target.files[0];
+
+		console.log(e.target.files[0])
+		if (file.type.split('/')[0] === 'image') {
+			const reader = new FileReader();
+			reader.readAsDataURL(file);
+
+			reader.onloadend = function (e) {
+				this.setState({
+					picture: {
+						newInputSingleFile: file,
+						previewURL: e.target.result,
+						showPreview: true
+					}
+				})
+			}.bind(this);
+		}
+		else {
+			this.props.setAlert('Please Upload an Image', 'orange');
+		}
+
 	}
 
 	componentDidMount() {
@@ -112,27 +160,34 @@ class CreateEditStory extends Component {
 	}
 
 	render() {
-		const { errors } = this.state;
+		const { errors, storySlug, picture, title, text } = this.state;
+
 		return (
 			<div className="row increase-min-height">
 				<div className="col-md-12">
 					<form onSubmit={this.onSubmit}>
 						<div className="text-center">
-							<button className="btn btn-secondary">Add Image</button>
-							<button type="submit" className="btn btn-primary ml-4">{!this.state.storySlug ? 'Publish' : 'Submit'}</button>
+							<button type="submit" className={`btn ${!storySlug ? 'btn-primary' : 'btn-secondary'}`}>{!storySlug ? 'Publish' : 'Update'}</button>
 						</div>
-						<div className="row">
-							{/* image preview, PS: the image can be minimize */}
+						<div className="row mt-4 mb-4">
+							<label className={`btn mb-0 preview-story ${picture.showPreview == false ? 'no-image' : ''} `} htmlFor="story-image">
+								{
+									picture.showPreview == false
+										? 'Add Picture'
+										: <img alt="" src={picture.previewURL} />
+								}
+							</label>
+							<input type="file" id="story-image" className="image-story" name="user[image]" multiple={true} onChange={this.previewImage} />
 						</div>
 						<div className="row">
 							<div className="col-md-12">
-								<input placeholder="Title" onChange={this.handleTitleChange} className="input-title-story" value={this.state.title} />
+								<input placeholder="Title" onChange={this.handleTitleChange} className="input-title-story" value={title} />
 								{errors && <div className="invalid-feedback-story">{errors.title}</div>}
 
 								<Editor
-									text={this.state.text}
+									text={text}
 									onChange={this.handleEditorChange}
-									data-placeholder={this.state.text ? '' : `Write Your Story`}
+									data-placeholder={text ? '' : `Write Your Story`}
 								/>
 								{errors && <div className="invalid-feedback-story">{errors.text}</div>}
 							</div>

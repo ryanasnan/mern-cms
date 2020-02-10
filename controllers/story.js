@@ -2,6 +2,9 @@ const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middlewares/async');
 const Story = require('../models/Story');
 const { advancedModelResults } = require('../utils/modelResults');
+const { replaceSpaceToUnderscore } = require('../utils/helper');
+const { validateSingleImageFile, uploadSingleFile } = require('../utils/fileHandler');
+const path = require('path');
 
 exports.getStories = asyncHandler(async (req, res, next) => {
 	if (req.params.userId) {
@@ -64,10 +67,39 @@ exports.getRandomStory = asyncHandler(async (req, res, next) => {
 })
 
 exports.createStory = asyncHandler(async (req, res, next) => {
+	const files = req.files;
+
+	if (!files) {
+		return next(new ErrorResponse(`Please upload a file`, 400));
+	}
+
+	const file = files.picture;
+	// if has multiple image, just create the loop
+	validateSingleImageFile(file, next);
+
 	// Add user to req.body
 	req.body.user = req.user.id;
 
-	const story = await Story.create(req.body);
+	let story = await Story.create(req.body);
+	// no need to check if story fail or not, cause when the create model fail, the code below will not execute (mongoose use callback so will never returning the process)
+
+	const dateNow = Date.now();
+	const fileName = `picture_story_${replaceSpaceToUnderscore(story.title.substring(0, 15))}_${dateNow}_${story.id}${path.parse(file.name).ext}`;
+	const directoryPath = `${process.env.FILE_UPLOAD_DIRECTORY}/${process.env.FILE_IMAGE_DIRECTORY}`;
+	const filePath = `${process.env.CLIENT_PUBLIC_PATH}/${directoryPath}/${fileName}`;
+	uploadSingleFile(file, filePath, next);
+
+	story = await Story.findByIdAndUpdate(story.id,
+		{
+			picture: {
+				directoryPath: directoryPath,
+				fileName
+			}
+		},
+		{
+			new: true
+		}
+	);
 
 	res.status(201).json({
 		success: true,
@@ -89,6 +121,35 @@ exports.updateStory = asyncHandler(async (req, res, next) => {
 		return next(
 			new ErrorResponse(`User ${req.params.id} is not authorized to update this story`, 404)
 		);
+	}
+
+	let hasNewImage = false;
+	if (req.query.has_new_image) {
+		hasNewImage = (req.query.has_new_image === 'true');
+	}
+
+	if (hasNewImage) {
+		const files = req.files;
+
+		if (!files) {
+			return next(new ErrorResponse(`Please upload a file`, 400));
+		}
+
+		const file = files.picture;
+		// if has multiple image, just create the loop
+		validateSingleImageFile(file, next);
+
+		const dateNow = Date.now();
+		const fileName = `picture_story_${replaceSpaceToUnderscore(req.body.title.substring(0, 15))}_${dateNow}_${story.id}${path.parse(file.name).ext}`;
+		const directoryPath = `${process.env.FILE_UPLOAD_DIRECTORY}/${process.env.FILE_IMAGE_DIRECTORY}`;
+		const filePath = `${process.env.CLIENT_PUBLIC_PATH}/${directoryPath}/${fileName}`;
+		uploadSingleFile(file, filePath, next);
+
+		// add object on picture before update
+		req.body.picture = {
+			directoryPath,
+			fileName
+		}
 	}
 
 	story = await Story.findByIdAndUpdate(req.params.id, req.body, {

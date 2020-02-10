@@ -1,0 +1,1 @@
+exports.replaceSpaceToUnderscore = (words) => words.split(' ').join('_');

@@ -16,6 +16,16 @@ const StorySchema = new Schema({
 		type: Schema.Types.ObjectId,
 		ref: 'User'
 	},
+	picture: {
+		directoryPath: {
+			type: String,
+			default: './static/images'
+		},
+		fileName: {
+			type: String,
+			default: 'default-story.jpg'
+		}
+	},
 	likes: [
 		{
 			user: {

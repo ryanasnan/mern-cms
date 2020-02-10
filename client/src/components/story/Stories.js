@@ -19,7 +19,7 @@ class Stories extends Component {
 				dataManipulationStatement: {
 					currentPage: 1,
 					sort: '-createdAt',
-					select: 'title slug text',
+					select: 'title slug text createdAt picture',
 					limit: 5,
 					hasMore: false
 				}
@@ -128,7 +128,7 @@ class Stories extends Component {
 			const storyTextWithoutTag = removeTagHtml(story.text);
 
 			const styleBackgroundImage = {
-				backgroundImage: `url(${jpgDemoImg(2)})`,
+				backgroundImage: `url(/${story.picture.directoryPath}/${story.picture.fileName})`,
 				height: '350px',
 				backgroundSize: 'cover',
 				backgroundRepeat: 'no-repeat'
@@ -163,7 +163,7 @@ class Stories extends Component {
 		const storyTextWithoutTag = removeTagHtml(story.text);
 
 		return (
-			<div key={story._id} className="mb-3 d-flex justify-content-between">
+			<div key={story._id} className="mb-3 d-flex align-items-center">
 				<div className="pr-3">
 					<h2 className="mb-1 h4 font-weight-bold">
 						<Link className="text-dark" to={{ pathname: `/story/${story.slug}` }}>{story.title}</Link>
@@ -176,7 +176,7 @@ class Stories extends Component {
 					</div>
 					<small className="text-muted">{moment(story.createdAt).format('ll')}</small>
 				</div>
-				<img alt="#" height="120" src={jpgDemoImg(1)} aria-hidden />
+				<img alt="#" className="small-thumbnail ml-auto" src={`${story.picture.directoryPath}/${story.picture.fileName}`} aria-hidden />
 			</div>
 
 		);

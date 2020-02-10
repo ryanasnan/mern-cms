@@ -57,6 +57,16 @@ img.user-profile-dropdown {
   cursor: pointer;
 }
 
+img.small-thumbnail {
+  max-width: 150px;
+  max-height: 150px;
+}
+
+img.extra-small-thumbnail {
+  max-width: 60px;
+  max-height: 60px;
+}
+
 ul.dropdown-menu.dropdown-menu-right.user-profile:before {
   right:15px !important;
   left: auto;
@@ -217,3 +227,31 @@ article.article-post p {
   font-size: 85%;
   color: #ea2f65;
 }
+
+label.preview-story {
+  padding: 5px;
+  height: 300px;
+  border: 2px black;
+  border-style: dashed;
+  margin: 0 auto;
+  background-color:#f8f9fa;
+  line-height: 280px;
+}
+
+label.preview-story.no-image {
+  width: 300px;
+}
+
+label.preview-story img {
+  margin: 0 auto;
+  max-height: 285px;
+  padding: 5px;
+}
+
+input.image-story {
+  opacity: 0;
+  position: absolute;
+  z-index: -1;
+}
+
+

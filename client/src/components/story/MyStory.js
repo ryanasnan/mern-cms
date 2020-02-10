@@ -31,7 +31,7 @@ class MyStory extends Component {
 					},
 					totalDocument: 0,
 					sort: '-createdAt',
-					select: 'title slug text',
+					select: 'title slug text createdAt picture',
 					limit: 10
 				}
 			}
@@ -166,7 +166,7 @@ class MyStory extends Component {
 		return (
 			<div key={story._id} className="flex-item-two-columns pt-3 border-top border-dark">
 				<div className="mb-3 d-flex align-items-center">
-					<img alt="#" height="80" src={jpgDemoImg('blog4')} />
+					<img alt="#" className="small-thumbnail" src={`/${story.picture.directoryPath}/${story.picture.fileName}`} />
 					<div className="pl-3">
 						<h2 className="mb-2 h6 font-weight-bold">
 							<Link className="text-dark" to={{ pathname: `/story/${story.slug}` }}>{title}</Link>
