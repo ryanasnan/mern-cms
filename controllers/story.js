@@ -145,6 +145,8 @@ exports.updateStory = asyncHandler(async (req, res, next) => {
 		const filePath = `${process.env.CLIENT_PUBLIC_PATH}/${directoryPath}/${fileName}`;
 		uploadSingleFile(file, filePath, next);
 
+		// Delete old file if necessary
+
 		// add object on picture before update
 		req.body.picture = {
 			directoryPath,
@@ -179,3 +181,168 @@ exports.deleteStory = asyncHandler(async (req, res, next) => {
 
 	res.status(200).json({ success: true, data: {} });
 });
+
+exports.commentStory = asyncHandler(async (req, res, next) => {
+	try {
+		const user = await User.findById(req.user.id).select('-password');
+		let story = await Story.findById(req.params.id);
+
+		const newComment = {
+			user: req.user.id,
+			text: req.body.text,
+			name: user.name,
+			avatar: user.avatar
+		};
+
+		story.comments.unshift(newComment);
+
+		story = await story.update({ $set: { comments: story.comments } });
+		res.status(200).json({ success: true, data: story.comments });
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).send('Server Error');
+	}
+})
+
+exports.replyComment = asyncHandler(async (req, res, next) => {
+	try {
+		console.log(req.params.id);
+		const user = await User.findById(req.user.id).select('-password');
+		let story = await Story.findById(req.params.id);
+
+		let comment = story.comments.find(
+			comment => comment.id === req.params.comment_id
+		);
+
+		// Make sure comment exists
+		if (!comment) {
+			return res.status(404).json({ msg: 'Comment does not exist' });
+		}
+
+		let mentionComment = '';
+		if (req.query.mention) {
+			mentionComment = req.query.mention;
+		}
+
+		const newComment = {
+			user: req.user.id,
+			text: req.body.text,
+			name: user.name,
+			avatar: user.avatar,
+			mention: mentionComment
+		};
+
+		comment.reply.push(newComment);
+
+		story = await story.update({ $set: { comments: story.comments } });
+
+		res.status(200).json({ success: true, data: comment });
+
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).send('Server Error');
+	}
+})
+
+exports.getCommentByStory = asyncHandler(async (req, res, next) => {
+	try {
+		const story = await Story.findById(req.params.id);
+
+		const comments = story.comments;
+		res.status(200).json({ success: true, data: comments });
+	} catch (err) {
+		res.status(500).send('server error');
+	}
+})
+
+exports.deleteComment = asyncHandler(async (req, res, next) => {
+	try {
+		let story = await Story.findOne({ _id: req.params.id });
+
+		let commentStory = story.comments.find((obj) => { return obj._id == req.params.comment_id });
+
+		if (commentStory == undefined) {
+			return next(
+				new ErrorResponse(`Comment not found with id of ${req.params.id}`, 404)
+			);
+		}
+
+		// Make sure user is comment owner
+		if (commentStory.user.toString() !== req.user.id) {
+			return next(
+				new ErrorResponse(`User ${req.params.id} is not authorized to delete this comment`, 404)
+			);
+		}
+
+		let comments = story.comments;
+		comments = comments.filter(function (obj) {
+			return obj._id != req.params.comment_id;
+		});
+
+		story = await story.updateOne({ $set: { comments: comments } });
+
+		res.status(200).json({ success: true });
+	} catch (err) {
+		res.status(500).send('server error');
+	}
+});
+
+exports.deleteReply = asyncHandler(async (req, res, next) => {
+	try {
+		let story = await Story.findOne({ _id: req.params.id });
+
+		let selectedCommentStory = story.comments.find((obj) => { return obj._id == req.params.comment_id });
+
+		if (selectedCommentStory == undefined) {
+			return next(
+				new ErrorResponse(`Comment not found with id of ${req.params.id}`, 404)
+			);
+		}
+
+		let replyComment = selectedCommentStory.reply.find((obj) => { return obj._id == req.params.reply_id });
+
+		if (replyComment == undefined) {
+			return next(
+				new ErrorResponse(`Comment not found with id of ${req.params.id}`, 404)
+			);
+		}
+
+		// Make sure user is comment owner
+		if (replyComment.user.toString() !== req.user.id) {
+			return next(
+				new ErrorResponse(`User ${req.params.id} is not authorized to delete this comment`, 404)
+			);
+		}
+
+		let commentStory = story.comments.filter(function (objectCommentStory) {
+			if(objectCommentStory._id == req.params.comment_id) {
+				var x = objectCommentStory.reply.filter((objectReplyComment) => {
+					if(objectReplyComment._id != req.params.reply_id) {
+						return true;
+					}
+					else {
+						return false;
+					}
+				});
+				objectCommentStory.reply = x;
+				return true
+			} else {			
+				return true;
+			}
+		});
+
+		story = await story.updateOne({ $set: { comments: commentStory } });
+		res.status(200).json({ success: true });
+
+	} catch (err) {
+		console.log(err);
+		res.status(500).send('server error');
+	}
+});
+/*
+edit comment dan delete comment
+		// Check user
+		if (comment.user.toString() !== req.user.id) {
+			return res.status(401).json({ msg: 'User not authorized' });
+		}
+*/

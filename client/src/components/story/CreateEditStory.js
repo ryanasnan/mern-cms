@@ -131,7 +131,6 @@ class CreateEditStory extends Component {
 	previewImage = (e) => {
 		const file = e.target.files[0];
 
-		console.log(e.target.files[0])
 		if (file.type.split('/')[0] === 'image') {
 			const reader = new FileReader();
 			reader.readAsDataURL(file);

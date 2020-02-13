@@ -254,4 +254,22 @@ input.image-story {
   z-index: -1;
 }
 
+div.main-comment {
+  background-color: #f8f9fa;
+  border-color: #f8f9fa;
+}
 
+div.reply-comment {
+  background-color: #e8f3ec;
+  border-color: #e8f3ec;
+  /* alternative : #f1f1f1 */
+}
+
+textarea.input-comment {
+  overflow: hidden;
+
+}
+
+btn.btn.btn-link:focus {
+  outline: none;
+}

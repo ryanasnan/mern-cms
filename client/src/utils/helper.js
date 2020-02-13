@@ -21,7 +21,7 @@ export const removeTagHtml = (string) => {
 	return result;
 }
 
-export const preventDuplicateObjectInStoriesArray = (initialarray, newArray) => {
+export const preventDuplicateSameObjectDocumentId = (initialarray, newArray) => {
 	return Object.values([...initialarray, ...newArray].reduce((acc, item) => {
 		if (typeof acc[item.term] === 'undefined') {
 			// set default value for each term as 0
@@ -36,3 +36,21 @@ export const preventDuplicateObjectInStoriesArray = (initialarray, newArray) => 
 		return acc;
 	}, {}))
 }
+
+export const arrayPaginator = (items, page, limit) => {
+	var page = page || 1,
+		limit = limit || 3,
+		offset = (page - 1) * limit,
+
+		paginatedItems = items.slice(offset).slice(0, limit),
+		totalPages = Math.ceil(items.length / limit);
+		return {
+		page: page,
+		limit: limit,
+		previousPage: page - 1 ? page - 1 : null,
+		nextPage: (totalPages > page) ? page + 1 : null,
+		total: items.length,
+		totalPages: totalPages,
+		data: paginatedItems
+	};
+};

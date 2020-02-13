@@ -53,7 +53,34 @@ const StorySchema = new Schema({
 			date: {
 				type: Date,
 				default: Date.now
-			}
+			},
+			reply: [
+				{
+					user: {
+						type: Schema.Types.ObjectId,
+						ref: 'users'
+					},
+					text: {
+						type: String,
+						required: true,
+						default: ''
+					},
+					name: {
+						type: String
+					},
+					avatar: {
+						type: String
+					},
+					date: {
+						type: Date,
+						default: Date.now
+					},
+					mention: {
+						type: String,
+						default: ''
+					}
+				}
+			]
 		}
 	],
 	createdAt: {

@@ -6,7 +6,9 @@ import { setErrors } from './error';
 import {
 	STORY_LOADING,
 	GET_STORY,
-	RESET_STORY
+	RESET_STORY,
+	LOADING_COMMENT,
+	GET_COMMENT
 }
 	from './types';
 
@@ -88,7 +90,7 @@ export const getStoryBySlug = (slug, history) => async (dispatch) => {
 	dispatch(setStoryLoading(stateOption));
 	try {
 		const res = await axios.get(`/api/story/slug/${slug}`);
-
+		// console.log(res);
 		dispatch({
 			type: GET_STORY,
 			payload: res.data,
@@ -112,7 +114,7 @@ export const getRandomStory = () => async (dispatch) => {
 	dispatch(setStoryLoading(stateOption));
 	try {
 		const res = await axios.get('/api/randomstory');
-		
+
 		dispatch({
 			type: GET_STORY,
 			payload: res.data,
@@ -130,7 +132,7 @@ export const getRandomStory = () => async (dispatch) => {
 // Create story
 export const createStory = (storyData, history) => async (dispatch) => {
 	const stateOption = 'story';
-	const config = {     
+	const config = {
 		headers: { 'content-type': 'multipart/form-data' }
 	}
 	dispatch(setStoryLoading(stateOption));
@@ -153,12 +155,12 @@ export const createStory = (storyData, history) => async (dispatch) => {
 }
 
 // Update story
-export const updateStory = (id, storyData, hasNewImage=false, history) => async (dispatch) => {
+export const updateStory = (id, storyData, hasNewImage = false, history) => async (dispatch) => {
 	const stateOption = 'story';
 	let queryString = '';
-	if(hasNewImage) {
+	if (hasNewImage) {
 		queryString = `has_new_image=${hasNewImage}`;
-	}	
+	}
 	dispatch(setStoryLoading(stateOption));
 	try {
 		await axios.put(`/api/story/${id}?${queryString}`, storyData);
@@ -207,5 +209,104 @@ export const setStoryLoading = (stateOption) => {
 export const resetStory = () => {
 	return {
 		type: RESET_STORY
+	}
+}
+
+export const commentStory = (storyId, commentData) => async (dispatch) => {
+	try {
+		await axios.put(`/api/story/${storyId}/comment`, commentData);
+
+	} catch (err) {
+		const errors = err.response.data.error;
+		if (errors) {
+			console.log(err.response);
+			// const inputError = !isObjectEmpty(errors.details) ? errors.details : {};
+			// dispatch(setErrors(inputError));
+
+			// const message = errors.message ? errors.message : "";
+			// dispatch(setAlert(message, 'danger'));
+		}
+	}
+}
+
+export const replyComment = (storyId, commentId, commentData, hasMention = '') => async (dispatch) => {
+	let queryString = '';
+	if (hasMention != '') {
+		queryString = `mention=${hasMention}`;
+	}
+
+	try {
+		await axios.put(`/api/story/${storyId}/comment/${commentId}/reply?${queryString}`, commentData);
+
+	} catch (err) {
+		const errors = err.response.data.error;
+		if (errors) {
+			console.log(err.response);
+			// const inputError = !isObjectEmpty(errors.details) ? errors.details : {};
+			// dispatch(setErrors(inputError));
+
+			// const message = errors.message ? errors.message : "";
+			// dispatch(setAlert(message, 'danger'));
+		}
+	}
+}
+
+export const deleteCommentStory = (storyId,	commentId) => async (dispatch) => {
+	try {
+		await axios.delete(`/api/story/${storyId}/comment/${commentId}`);
+	} catch (err) {
+		const errors = err.response.data.error;
+		if (errors) {
+			console.log(err.response);
+			// const inputError = !isObjectEmpty(errors.details) ? errors.details : {};
+			// dispatch(setErrors(inputError));
+
+			// const message = errors.message ? errors.message : "";
+			// dispatch(setAlert(message, 'danger'));
+		}
+	}
+
+}
+
+export const deleteReplyComment = (storyId,	commentId, replyId) => async (dispatch) => {
+	try {
+		await axios.delete(`/api/story/${storyId}/comment/${commentId}/reply/${replyId}`);
+	} catch (err) {
+		const errors = err.response.data.error;
+		if (errors) {
+			console.log(err.response);
+			// const inputError = !isObjectEmpty(errors.details) ? errors.details : {};
+			// dispatch(setErrors(inputError));
+
+			// const message = errors.message ? errors.message : "";
+			// dispatch(setAlert(message, 'danger'));
+		}
+	}
+
+}
+
+export const reloadComment = (storyId) => async (dispatch) => {
+	dispatch({
+		type: LOADING_COMMENT,
+		payload: null
+	})
+	try {
+		const res = await axios.get(`/api/story/${storyId}/comment`);
+
+		dispatch({
+			type: GET_COMMENT,
+			payload: res.data.data
+		});
+
+	} catch (err) {
+		const errors = err.response.data.error;
+		if (errors) {
+			console.log(err.response);
+			// const inputError = !isObjectEmpty(errors.details) ? errors.details : {};
+			// dispatch(setErrors(inputError));
+
+			// const message = errors.message ? errors.message : "";
+			// dispatch(setAlert(message, 'danger'));
+		}
 	}
 }

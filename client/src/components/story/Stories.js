@@ -1,11 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import { jpgDemoImg } from '../../utils/helper';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { setAlert, clearAlert } from '../../actions/alert';
 import { setErrors, clearErrors } from '../../actions/error';
 import { getStories, getStory, resetStory, getRandomStory } from '../../actions/story';
-import { isObjectEmpty, removeTagHtml, preventDuplicateObjectInStoriesArray } from '../../utils/helper';
+import { isObjectEmpty, removeTagHtml, preventDuplicateSameObjectDocumentId } from '../../utils/helper';
 import Spinner from '../layout/Spinner';
 import moment from 'moment';
 import _ from 'lodash';
@@ -67,7 +66,7 @@ class Stories extends Component {
 				...stateObj,
 				latestStories: {
 					...prevState.latestStories,
-					data: preventDuplicateObjectInStoriesArray([...prevState.latestStories.data], [...nextProps.story.stories.data.results]),
+					data: preventDuplicateSameObjectDocumentId([...prevState.latestStories.data], [...nextProps.story.stories.data.results]),
 					dataManipulationStatement: {
 						...prevState.latestStories.dataManipulationStatement,
 						currentPage: nextProps.story.stories.data.pagination.currentPage.page,
@@ -269,4 +268,4 @@ const mapStateToProps = state => ({
 });
 
 
-export default connect(mapStateToProps, { preventDuplicateObjectInStoriesArray, setAlert, clearAlert, setErrors, clearErrors, getStories, getStory, resetStory, getRandomStory })(Stories);
+export default connect(mapStateToProps, { setAlert, clearAlert, setErrors, clearErrors, getStories, getStory, resetStory, getRandomStory })(Stories);

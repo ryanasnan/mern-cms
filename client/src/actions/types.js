@@ -14,3 +14,5 @@ export const GET_STORY = 'GET_STORY';
 export const ACCOUNT_DELETED = 'ACCOUNT_DELETED';
 export const GET_PROFILE = 'GET_PROFILE';
 export const RESET_STORY = 'RESET_STORY';
+export const GET_COMMENT = 'GET_COMMENT';
+export const LOADING_COMMENT = 'LOADING_COMMENT';

@@ -8,17 +8,16 @@ import { getStoryBySlug } from '../../actions/story';
 import { isObjectEmpty, isNullOrEmptyObject } from '../../utils/helper';
 import parse from 'html-react-parser';
 import moment from 'moment';
+import Spinner from '../layout/Spinner';
+import Comment from '../comment/Comment';
 
 class Story extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			slug: '',
-			title: '',
-			text: '',
-			picture: {},
-			user: '',
-			createdAt: '',
+			story: {
+				data: {}
+			}
 		}
 		this.props.clearAlert();
 		this.props.clearErrors();
@@ -26,22 +25,33 @@ class Story extends Component {
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		let stateObj = {};
-
 		if (!isObjectEmpty(nextProps.match.params)) {
 			stateObj = {
 				...stateObj,
-				slug: nextProps.match.params.slug
+				story: {
+					...prevState.story,
+					data: {
+						...prevState.story.data,
+						slug: nextProps.match.params.slug
+					}
+				}
 			}
 		}
 
 		if (!isNullOrEmptyObject(nextProps.story.story.data)) {
 			stateObj = {
 				...stateObj,
-				title: nextProps.story.story.data.results.title,
-				text: nextProps.story.story.data.results.text,
-				picture: nextProps.story.story.data.results.picture,
-				user: nextProps.story.story.data.results.user,
-				createdAt: nextProps.story.story.data.results.createdAt
+				story: {
+					...prevState.story,
+					data: {
+						...prevState.story.data,
+						title: nextProps.story.story.data.results.title,
+						text: nextProps.story.story.data.results.text,
+						picture: nextProps.story.story.data.results.picture,
+						user: nextProps.story.story.data.results.user,
+						createdAt: nextProps.story.story.data.results.createdAt
+					}
+				}
 			}
 		}
 
@@ -49,54 +59,71 @@ class Story extends Component {
 	}
 
 	componentDidMount() {
-		const { slug } = this.state;
+		const { slug } = this.state.story.data;
 
 		this.props.getStoryBySlug(slug, this.props.history);
 	}
 
+	renderStory(story, loading) {
+		if (loading) {
+			return (<Spinner />);
+		}
+		else {
+			const { title, text, user, picture, createdAt } = story;
+			return (
+				<Fragment>
+					<div className="container pt-4 pb-4">
+						<div className="jumbotron jumbotron-fluid mb-3 pl-0 pt-0 pb-0 bg-white position-relative">
+							<div className="h-100 tofront">
+								<div className="row justify-content-between">
+									<div className="col-md-6 align-self-center">
+										<p className="text-uppercase font-weight-bold">
+											<Link className="text-danger" to="/">Stories</Link>
+										</p>
+										<h1 className="display-4 secondfont mb-3 font-weight-bold">{title}</h1>
+										<div className="d-flex align-items-center">
+											<img className="rounded-circle extra-small-thumbnail" alt="#" src="https://www.w3schools.com/howto/img_avatar.png" aria-hidden />
+
+											<small className="ml-2">{user.name}<span className="text-muted d-block">{moment(createdAt).format('ll')}</span>
+											</small>
+										</div>
+									</div>
+									<div className="col-md-6 pr-0 text-right">
+										<img alt="#" height="300" src={`/${picture.directoryPath}/${picture.fileName}`} aria-hidden />
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div className="container pt-4">
+
+						<div className="row justify-content-center">
+							<div className="col-md-12 col-lg-12">
+								<article className="article-post">
+									{parse(text)}
+								</article>
+							</div>
+						</div>
+					</div>
+				</Fragment>
+			)
+		}
+	}
+
 	render() {
-		const { title, text, user, picture, createdAt } = this.state;
+		const { story: { loading: loadingSingleStory } } = this.props.story;
+		const { story: { data: singleStory } } = this.state;
 
 		return (
 			<Fragment>
 				<div className="row">
 					<div className="col-md-12">
 
-						<div className="container pt-4 pb-4">
-							<div className="jumbotron jumbotron-fluid mb-3 pl-0 pt-0 pb-0 bg-white position-relative">
-								<div className="h-100 tofront">
-									<div className="row justify-content-between">
-										<div className="col-md-6 align-self-center">
-											<p className="text-uppercase font-weight-bold">
-												<Link className="text-danger" to="/">Stories</Link>
-											</p>
-											<h1 className="display-4 secondfont mb-3 font-weight-bold">{title}</h1>
-											<div className="d-flex align-items-center">
-												<img className="rounded-circle extra-small-thumbnail" alt="#" src="https://www.w3schools.com/howto/img_avatar.png" aria-hidden />
+						{this.renderStory(singleStory, loadingSingleStory)}
 
-												<small className="ml-2">{user.name}<span className="text-muted d-block">{moment(createdAt).format('ll')}</span>
-												</small>
-											</div>
-										</div>
-										<div className="col-md-6 pr-0 text-right">
-											<img alt="#" height="300" src={`/${picture.directoryPath}/${picture.fileName}`} aria-hidden />
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-
-						<div className="container pt-4 pb-4">
-
-							<div className="row justify-content-center">
-								<div className="col-md-12 col-lg-12">
-									<article className="article-post">
-										{parse(text)}
-									</article>
-								</div>
-							</div>
-						</div>
-
+						<Comment slug={this.props.match.params.slug} />
+						
 						<div className="container pt-4 pb-4">
 							<h5 className="font-weight-bold spanborder"><span>Read next</span></h5>
 							<div className="row">
@@ -112,7 +139,7 @@ class Story extends Component {
 										</p>
 											<div>
 												<small className="d-block"><Link className="text-muted" to="./story">Favid Rick</Link></small>
-												<small className="text-muted">Dec 12 · 5 min read</small>
+												<small className="text-muted">Dec 12</small>
 											</div>
 										</div>
 									</div>
@@ -125,10 +152,10 @@ class Story extends Component {
 												<h2 className="mb-2 h6 font-weight-bold">
 													<Link className="text-dark" to="./story">Nasa's IceSat space laser makes height maps of Earth</Link>
 												</h2>
-												<div className="card-text text-muted small">
+												<div className="card-text text-muted">
 													Jake Bittle in LOVE/HATE
 										</div>
-												<small className="text-muted">Dec 12 · 5 min read</small>
+												<small className="text-muted">Dec 12</small>
 											</div>
 										</div>
 										<div className="mb-3 d-flex align-items-center">
@@ -137,10 +164,10 @@ class Story extends Component {
 												<h2 className="mb-2 h6 font-weight-bold">
 													<Link className="text-dark" to="./story">Underwater museum brings hope to Lake Titicaca</Link>
 												</h2>
-												<div className="card-text text-muted small">
+												<div className="card-text text-muted">
 													Jake Bittle in LOVE/HATE
 										</div>
-												<small className="text-muted">Dec 12 · 5 min read</small>
+												<small className="text-muted">Dec 12</small>
 											</div>
 										</div>
 										<div className="mb-3 d-flex align-items-center">
@@ -149,10 +176,10 @@ class Story extends Component {
 												<h2 className="mb-2 h6 font-weight-bold">
 													<Link className="text-dark" to="./story">Sun-skimming probe starts calling home</Link>
 												</h2>
-												<div className="card-text text-muted small">
+												<div className="card-text text-muted">
 													Jake Bittle in LOVE/HATE
-										</div>
-												<small className="text-muted">Dec 12 · 5 min read</small>
+												</div>
+												<small className="text-muted">Dec 12</small>
 											</div>
 										</div>
 									</div>
@@ -161,6 +188,7 @@ class Story extends Component {
 						</div>
 					</div>
 				</div>
+
 			</Fragment >
 		)
 	}

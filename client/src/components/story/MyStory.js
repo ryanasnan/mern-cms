@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { jpgDemoImg } from '../../utils/helper';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { connect } from 'react-redux';
@@ -259,7 +258,8 @@ class MyStory extends Component {
 const mapStateToProps = state => ({
 	auth: state.auth,
 	errors: state.errors,
-	story: state.story
+	story: state.story,
+	comment: state.comment
 });
 
 export default connect(mapStateToProps, { getUserStories, deleteStory, resetStory, setAlert, clearAlert, setErrors, clearErrors })(withRouter(MyStory));
