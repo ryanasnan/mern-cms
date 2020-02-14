@@ -13,6 +13,7 @@
     "dev": "concurrently \"npm run server\" \"npm run client\" ",
     "virtual-live-server": "NODE_ENV=production npm run server",
     "virtual-live-server:build-client": "npm run build --prefix client && NODE_ENV=production npm run server ",
+    "seed-user": "cd ./seeder && node user.js",
     "seed-story": "cd ./seeder && node story.js"
   },
   "author": "ryan asnan",

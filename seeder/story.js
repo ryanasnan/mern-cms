@@ -22,7 +22,7 @@ connectDB();
 
 let directoryPath = `${process.env.FILE_STATIC_DIRECTORY}/${process.env.FILE_IMAGE_DIRECTORY}/demo`;
 const faker = require('faker');
-const seederNumber = 50;
+const seederNumber = 1000;
 var query = User.find({});
 
 query.exec(async function (err, arrIdLists) {
