@@ -26,6 +26,53 @@ exports.getStories = asyncHandler(async (req, res, next) => {
 	return res.status(200).json(data);
 });
 
+exports.getPopularStories = asyncHandler(async (req, res, next) => {
+	let number = req.query.number || 5;
+
+	const story = await Story.find().populate({
+		path: 'user',
+		select: 'name avatar'
+	});
+
+	if (!story) {
+		return next(
+			new ErrorResponse(`Story not found`, 404)
+		);
+	}
+	  
+	story.sort(function(a, b)  {  
+		return b['totalPopularity'] - a['totalPopularity']
+	});
+
+	let popularStories = story.slice(0,number);
+	res.status(200).json({ success: true, results: popularStories });
+});
+
+exports.getRelatedStories = asyncHandler(async (req, res, next) => {
+	let limitNumber = req.query.limitnumber || 5;
+	const storyCount = await Story.countDocuments();
+
+	let relatedStories = [];
+	let randomId = [];
+	for (let i = 0; i < limitNumber; i++) {
+		var id = Math.floor(Math.random() * storyCount);
+		if(!randomId.includes(id)) {
+			randomId.push(id);
+		}
+	}
+
+	for (let j = 0; j < randomId.length; j++) {
+		var randomStory = await Story.findOne().skip(randomId[j]).populate({
+			path: 'user',
+			select: 'name avatar'
+		});
+		relatedStories.push(randomStory);
+	}
+
+	res.status(200).json({ success: true, results: relatedStories });
+});
+
+
 exports.getStory = asyncHandler(async (req, res, next) => {
 	const story = await Story.findById(req.params.id).populate({
 		path: 'user',

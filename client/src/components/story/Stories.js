@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { setAlert, clearAlert } from '../../actions/alert';
 import { setErrors, clearErrors } from '../../actions/error';
-import { getStories, getStory, resetStory, getRandomStory } from '../../actions/story';
-import { isObjectEmpty, removeTagHtml, preventDuplicateSameObjectDocumentId } from '../../utils/helper';
+import { getStories, getPopularStories, getStory, resetStory, getRandomStory } from '../../actions/story';
+import { isNullOrEmptyObject, isObjectEmpty, removeTagHtml, preventDuplicateSameObjectDocumentId } from '../../utils/helper';
 import Spinner from '../layout/Spinner';
 import moment from 'moment';
 import _ from 'lodash';
@@ -25,6 +25,10 @@ class Stories extends Component {
 			},
 			randomStory: {
 				data: {}
+			},
+			popularStories: {
+				data: null,
+				loading: true
 			}
 		}
 		this.props.clearAlert();
@@ -86,8 +90,21 @@ class Stories extends Component {
 				}
 
 			}
-
 		}
+
+		if (!isNullOrEmptyObject(nextProps.story.popularStories.data)) {
+			if (isNullOrEmptyObject(prevState.popularStories.data)) {
+				stateObj = {
+					...stateObj,
+					popularStories: {
+						data: nextProps.story.popularStories.data.results,
+						loading: nextProps.story.popularStories.loading
+					}
+				}
+
+			}
+		}
+
 
 		return stateObj;
 	}
@@ -104,7 +121,12 @@ class Stories extends Component {
 			limit
 		});
 		this.loadRandomStory();
+		this.loadPopularStories(5);
 	}
+
+	loadPopularStories = _.debounce((number) => {
+		this.props.getPopularStories(number);
+	}, 700);
 
 	componentWillUnmount() {
 		window.removeEventListener('scroll', this.onScroll, false);
@@ -138,7 +160,7 @@ class Stories extends Component {
 					<h5 className="font-weight-bold spanborder"><span>Random Story</span></h5>
 					<div className="card border-0 mb-5 box-shadow">
 						<div style={styleBackgroundImage} >
-							
+
 						</div>
 						<div className="card-body px-0 pb-0 d-flex flex-column align-items-start">
 							<h2 className="h2 font-weight-bold">
@@ -175,15 +197,51 @@ class Stories extends Component {
 					</div>
 					<small className="text-muted">{moment(story.createdAt).format('ll')}</small>
 				</div>
-				<img alt="#" className="small-thumbnail ml-auto" src={`${story.picture.directoryPath}/${story.picture.fileName}`} aria-hidden />
+				<img alt="#" className="small-thumbnail ml-auto" src={`/${story.picture.directoryPath}/${story.picture.fileName}`} aria-hidden />
 			</div>
-
 		);
+	}
+
+	renderPopularStories(stories, loading) {
+		return (
+			<Fragment>
+				<div className="col-md-4 pl-4">
+					<div className="sticky-top">
+						<h5 className="font-weight-bold spanborder"><span>Popular Stories</span></h5>
+						{
+							loading || isNullOrEmptyObject(stories)
+								? <Spinner />
+								:
+								<ol className="list-featured">
+									{_.map(stories, story => {
+										var storyTitle = story.title.length < 30 ? story.title : story.title.substring(0, 30) + '...';
+										return (
+											<li key={story._id}>
+												<span>
+													<h6 className="font-weight-bold">
+														<Link className="text-dark" to={{ pathname: `/story/${story.slug}` }}>{storyTitle}</Link>
+													</h6>
+													<p className="text-muted">
+														{story.user.name}
+                                    				</p>
+												</span>
+											</li>
+										)
+									})}
+								</ol>
+						}
+
+					</div>
+				</div>
+
+
+			</Fragment>
+		)
 	}
 
 	render() {
 		const { stories: { loading: loadingLatestStories }, randomStory: { loading: loadingRandomStory } } = this.props.story;
-		const { latestStories: { data: latestStoriesData }, randomStory: { data: { results: randomStory } } } = this.state;
+		const { latestStories: { data: latestStoriesData }, randomStory: { data: { results: randomStory } }, popularStories: { data: popularStories, loading: loadingPopularStories } } = this.state;
 
 		return (
 			<div className="row responsive-column-reverse">
@@ -199,63 +257,7 @@ class Stories extends Component {
 					}
 
 				</div>
-				<div className="col-md-4 pl-4">
-					<div className="sticky-top">
-						<h5 className="font-weight-bold spanborder"><span>Popular Stories</span></h5>
-						<ol className="list-featured">
-							<li>
-								<span>
-									<h6 className="font-weight-bold">
-										<Link to="./story" className="text-dark">Did Supernovae Kill Off Large Ocean Animals?</Link>
-									</h6>
-									<p className="text-muted">
-										Jake Bittle in SCIENCE
-                                    </p>
-								</span>
-							</li>
-							<li>
-								<span>
-									<h6 className="font-weight-bold">
-										<Link to="./story" className="text-dark">Humans Reversing Climate Clock: 50 Million Years</Link>
-									</h6>
-									<p className="text-muted">
-										Jake Bittle in SCIENCE
-                                    </p>
-								</span>
-							</li>
-							<li>
-								<span>
-									<h6 className="font-weight-bold">
-										<Link to="./story" className="text-dark">Unprecedented Views of the Birth of Planets</Link>
-									</h6>
-									<p className="text-muted">
-										Jake Bittle in SCIENCE
-                                    </p>
-								</span>
-							</li>
-							<li>
-								<span>
-									<h6 className="font-weight-bold">
-										<Link to="./story" className="text-dark">Effective New Target for Mood-Boosting Brain Stimulation Found</Link>
-									</h6>
-									<p className="text-muted">
-										Jake Bittle in SCIENCE
-									</p>
-								</span>
-							</li>
-							<li>
-								<span>
-									<h6 className="font-weight-bold">
-										<Link to="./story" className="text-dark">Effective New Target for Mood-Boosting Brain Stimulation Found</Link>
-									</h6>
-									<p className="text-muted">
-										Jake Bittle in SCIENCE
-                                    </p>
-								</span>
-							</li>
-						</ol>
-					</div>
-				</div>
+				{this.renderPopularStories(popularStories, loadingPopularStories)}
 			</div>
 		)
 	}
@@ -268,4 +270,4 @@ const mapStateToProps = state => ({
 });
 
 
-export default connect(mapStateToProps, { setAlert, clearAlert, setErrors, clearErrors, getStories, getStory, resetStory, getRandomStory })(Stories);
+export default connect(mapStateToProps, { setAlert, clearAlert, setErrors, clearErrors, getStories, getPopularStories, getStory, resetStory, getRandomStory })(Stories);

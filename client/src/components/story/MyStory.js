@@ -214,7 +214,7 @@ class MyStory extends Component {
 						</button>
 
 						<div className="modal fade" id={`commentModal-${story._id}`} tabIndex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-							<div className="modal-dialog modal-dialog-centered" role="document">
+							<div className="modal-dialog modal-dialog-centered modal-lg" role="document">
 								<div className="modal-content">
 									<div className="modal-header">
 										<h5 className="modal-title">User comments</h5>

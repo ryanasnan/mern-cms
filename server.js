@@ -9,7 +9,7 @@ const connectDB = require('./config/db');
 const auth = require('./routes/api/auth');
 const story = require('./routes/api/story');
 const user = require('./routes/api/user');
-const { getRandomStory } = require('./controllers/story');
+const { getRandomStory, getPopularStories, getRelatedStories } = require('./controllers/story');
 const path = require('path');
 
 // dotenv (for load the environment setting and insert into process.env)
@@ -56,8 +56,9 @@ app.use(fileupload());
 app.use('/api/auth', auth);
 app.use('/api/story', story);
 app.use('/api/user', user);
-app.get('/api/randomstory', getRandomStory)
-
+app.get('/api/randomstory', getRandomStory);
+app.get('/api/popularstories', getPopularStories);
+app.get('/api/relatedstories', getRelatedStories);
 app.use(errorHandler);
 
 // if the application deployed('production'), use this to access static page (front end) and to create all the path route redirect on front end html

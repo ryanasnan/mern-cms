@@ -40,6 +40,46 @@ export const getStories = (objParams = null) => async (dispatch) => {
 	}
 }
 
+export const getPopularStories = (number = 5) => async (dispatch) => {
+	const stateOption = 'popularStories';
+	dispatch(setStoryLoading(stateOption));
+	try {
+		const res = await axios.get(`/api/popularstories?number=${number}`);
+		dispatch({
+			type: GET_STORY,
+			payload: res.data,
+			stateOption: stateOption
+		});
+
+	} catch (error) {
+		dispatch({
+			type: GET_STORY,
+			payload: null,
+			stateOption: stateOption
+		});
+	}
+}
+
+export const getRelatedStories = (number = 3) => async (dispatch) => {
+	const stateOption = 'relatedStories';
+	dispatch(setStoryLoading(stateOption));
+	try {
+		const res = await axios.get(`/api/relatedstories?limitnumber=${number}`);
+		dispatch({
+			type: GET_STORY,
+			payload: res.data,
+			stateOption: stateOption
+		});
+
+	} catch (error) {
+		dispatch({
+			type: GET_STORY,
+			payload: null,
+			stateOption: stateOption
+		});
+	}
+}
+
 // Get Story from User 
 export const getUserStories = (objParams = null, userId) => async (dispatch) => {
 	const stateOption = 'stories';

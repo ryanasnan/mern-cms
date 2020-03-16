@@ -32,7 +32,7 @@ class About extends Component {
 											For the template i just use Mundana Template, that template is open source and you can downloading free.
 										</p>
 										<p>
-											I created this app about 2 weeks, and of course the most hard part is front end implementation.
+											I created this app about 3 weeks, and of course the most hard part is front end implementation.
 											Maybe i need 10 days to implementate, create new page and fixing the front end code, so it will better to be used.
 											The MOST HARD PART is implemented new react lifecycle getDerivedStateFromProps.
 											React announce about deprecating method componentWillReceiveProps and change to getDerivedStateFromProps, well the big problem is the getDerivedStateFromProps always get previous props.

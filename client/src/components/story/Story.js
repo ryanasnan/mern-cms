@@ -4,12 +4,13 @@ import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { setAlert, clearAlert } from '../../actions/alert';
 import { setErrors, clearErrors } from '../../actions/error';
-import { getStoryBySlug } from '../../actions/story';
-import { isObjectEmpty, isNullOrEmptyObject } from '../../utils/helper';
+import { getStoryBySlug, getRandomStory, getRelatedStories } from '../../actions/story';
+import { isObjectEmpty, isNullOrEmptyObject, removeTagHtml } from '../../utils/helper';
 import parse from 'html-react-parser';
 import moment from 'moment';
 import Spinner from '../layout/Spinner';
 import Response from '../response/Response';
+import _ from 'lodash';
 
 class Story extends Component {
 	constructor(props) {
@@ -17,6 +18,14 @@ class Story extends Component {
 		this.state = {
 			story: {
 				data: {}
+			},
+			randomStory: {
+				data: null,
+				loading: true
+			},
+			relatedStories: {
+				data: null,
+				loading: true
 			}
 		}
 		this.props.clearAlert();
@@ -56,6 +65,32 @@ class Story extends Component {
 			}
 		}
 
+		if (!isNullOrEmptyObject(nextProps.story.randomStory.data)) {
+			if (isNullOrEmptyObject(prevState.randomStory.data)) {
+				stateObj = {
+					...stateObj,
+					randomStory: {
+						data: nextProps.story.randomStory.data.results,
+						loading: nextProps.story.randomStory.loading
+					}
+				}
+
+			}
+		}
+
+		if (!isNullOrEmptyObject(nextProps.story.relatedStories.data)) {
+			if (isNullOrEmptyObject(prevState.relatedStories.data)) {
+				stateObj = {
+					...stateObj,
+					relatedStories: {
+						data: nextProps.story.relatedStories.data.results,
+						loading: nextProps.story.relatedStories.loading
+					}
+				}
+
+			}
+		}
+
 		return stateObj;
 	}
 
@@ -63,6 +98,16 @@ class Story extends Component {
 		const { slug } = this.state.story.data;
 
 		this.props.getStoryBySlug(slug, this.props.history);
+		this.loadRandomStory();
+		this.loadRelatedStories(3)
+	}
+
+	loadRandomStory = () => {
+		this.props.getRandomStory();
+	}
+
+	loadRelatedStories = (limitNumber) => {
+		this.props.getRelatedStories(limitNumber);
 	}
 
 	renderStory(story, loading) {
@@ -112,9 +157,90 @@ class Story extends Component {
 		}
 	}
 
+	renderRandomStory(story, loading) {
+		let storyTextWithoutTag = '';
+		let styleBackgroundImage = '';
+		if (!loading) {
+			storyTextWithoutTag = removeTagHtml(story.text);
+			styleBackgroundImage = {
+				backgroundImage: `url(/${story.picture.directoryPath}/${story.picture.fileName})`,
+				height: '350px',
+				backgroundSize: 'cover',
+				backgroundRepeat: 'no-repeat'
+			}
+
+		}
+
+		return (
+			<Fragment>
+				<div className="col-lg-6">
+					<div className="card border-0 mb-4 box-shadow h-xl-300">
+						{
+							loading || isNullOrEmptyObject(story)
+								? <Spinner />
+								:
+								<Fragment>
+									<div style={styleBackgroundImage}></div>
+									<div className="card-body px-0 pb-0 d-flex flex-column align-items-start">
+										<h2 className="h4 font-weight-bold">
+											<Link className="text-dark" to={{ pathname: `/story/${story.slug}` }}> {story.title}</Link>
+										</h2>
+										<p className="card-text">
+											{storyTextWithoutTag.length < 200 ? storyTextWithoutTag : storyTextWithoutTag.substring(0, 200) + '...'}
+										</p>
+										<div>
+											<small className="d-block"><Link className="text-muted" to="./story">{story.user.name}</Link></small>
+											<small className="text-muted">{moment(story.createdAt).format('ll')}</small>
+										</div>
+									</div>
+								</Fragment>
+						}
+					</div>
+				</div>
+
+			</Fragment>
+		)
+	}
+
+	renderRelatedStories(stories, loading) {
+		return (
+			<Fragment>
+				<div className="col-lg-6">
+					<div className="flex-md-row mb-4 box-shadow h-xl-300">
+						{
+							loading || isNullOrEmptyObject(stories)
+								? <Spinner />
+								:
+								<Fragment>
+									{_.map(stories, story => {
+										return (
+											<Fragment key={story._id}>
+												<div className="mb-3 d-flex align-items-center">
+													<img alt="#" height="80" src={`/${story.picture.directoryPath}/${story.picture.fileName}`} />
+													<div className="pl-3">
+														<h2 className="mb-2 h6 font-weight-bold">
+															<Link className="text-dark" to={{ pathname: `/story/${story.slug}` }}>{story.title}</Link>
+														</h2>
+														<div className="card-text text-muted">
+														{story.user.name}
+														</div>
+														<small className="text-muted">{moment(story.createdAt).format('ll')}</small>
+													</div>
+												</div>
+											</Fragment>
+										)
+									})}
+								</Fragment>
+						}
+					</div>
+				</div>
+			</Fragment>
+		)
+	}
+
 	render() {
 		const { story: { loading: loadingSingleStory } } = this.props.story;
-		const { story: { data: singleStory } } = this.state;
+		const { story: { data: singleStory }, randomStory: { data: randomStory, loading: loadingRandomStory }, relatedStories: { data: relatedStories, loading: loadingRelatedStories } } = this.state;
 
 		return (
 			<Fragment>
@@ -125,71 +251,17 @@ class Story extends Component {
 
 						{
 							!loadingSingleStory
-							? 
-							<Response story={singleStory} />
-							: <Spinner/>
+								?
+								<Response story={singleStory} />
+								: <Spinner />
 						}
-						
+
 						<div className="container pt-4 pb-4">
 							<h5 className="font-weight-bold spanborder"><span>Read next</span></h5>
 							<div className="row">
-								<div className="col-lg-6">
-									<div className="card border-0 mb-4 box-shadow h-xl-300">
-										<div style={{ backgroundImage: `url(${jpgDemoImg(2)})`, height: '150px', backgroundSize: 'cover', backgroundRepeat: 'no-repeat' }}></div>
-										<div className="card-body px-0 pb-0 d-flex flex-column align-items-start">
-											<h2 className="h4 font-weight-bold">
-												<Link className="text-dark" to="./story"> Stimulation Relieves Depression Symptoms</Link>
-											</h2>
-											<p className="card-text">
-												Researchers have found an effective target in the brain for electrical stimulation to improve mood in people suffering from depression.
-										</p>
-											<div>
-												<small className="d-block"><Link className="text-muted" to="./story">Favid Rick</Link></small>
-												<small className="text-muted">Dec 12</small>
-											</div>
-										</div>
-									</div>
-								</div>
-								<div className="col-lg-6">
-									<div className="flex-md-row mb-4 box-shadow h-xl-300">
-										<div className="mb-3 d-flex align-items-center">
-											<img alt="#" height="80" src={jpgDemoImg('blog4')} />
-											<div className="pl-3">
-												<h2 className="mb-2 h6 font-weight-bold">
-													<Link className="text-dark" to="./story">Nasa's IceSat space laser makes height maps of Earth</Link>
-												</h2>
-												<div className="card-text text-muted">
-													Jake Bittle in LOVE/HATE
-										</div>
-												<small className="text-muted">Dec 12</small>
-											</div>
-										</div>
-										<div className="mb-3 d-flex align-items-center">
-											<img alt="#" height="80" src={jpgDemoImg('blog5')} />
-											<div className="pl-3">
-												<h2 className="mb-2 h6 font-weight-bold">
-													<Link className="text-dark" to="./story">Underwater museum brings hope to Lake Titicaca</Link>
-												</h2>
-												<div className="card-text text-muted">
-													Jake Bittle in LOVE/HATE
-										</div>
-												<small className="text-muted">Dec 12</small>
-											</div>
-										</div>
-										<div className="mb-3 d-flex align-items-center">
-											<img alt="#" height="80" src={jpgDemoImg('blog6')} />
-											<div className="pl-3">
-												<h2 className="mb-2 h6 font-weight-bold">
-													<Link className="text-dark" to="./story">Sun-skimming probe starts calling home</Link>
-												</h2>
-												<div className="card-text text-muted">
-													Jake Bittle in LOVE/HATE
-												</div>
-												<small className="text-muted">Dec 12</small>
-											</div>
-										</div>
-									</div>
-								</div>
+								{this.renderRandomStory(randomStory, loadingRandomStory)}
+								{this.renderRelatedStories(relatedStories, loadingRelatedStories)}
+
 							</div>
 						</div>
 					</div>
@@ -205,4 +277,4 @@ const mapStateToProps = (state) => ({
 	story: state.story
 })
 
-export default connect(mapStateToProps, { setAlert, clearAlert, getStoryBySlug, setErrors, clearErrors })(Story);
+export default connect(mapStateToProps, { setAlert, clearAlert, getStoryBySlug, getRandomStory, getRelatedStories, setErrors, clearErrors })(Story);

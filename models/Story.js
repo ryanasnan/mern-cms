@@ -120,4 +120,11 @@ StorySchema.virtual('countLikes').get(function () {
 	return this.likes !== undefined ? this.likes.length : 0;
 });
 
+StorySchema.virtual('totalPopularity').get(function () {
+	if(this.comments !== undefined && this.likes !== undefined) {
+		return totalCommentsAndReplies(this.comments) + this.likes.length;
+	}
+	return 0;
+});
+
 module.exports = Story = mongoose.model('Story', StorySchema);
