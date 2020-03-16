@@ -19,10 +19,15 @@ exports.validateSingleImageFile = (file, nextHandlerMiddleware) => {
 	}
 }
 
-exports.uploadSingleFile = (objFile, filePath, nextHandlerMiddleware) => {
+exports.uploadSingleFile = async (objFile, filePath, nextHandlerMiddleware) => {
+	await objFile.mv(filePath);
+
+	/* if need an error (but cannot use synchronous method and may cause on update/create request)
 	objFile.mv(filePath, async err => {
 		if (err) {
 			throw nextHandlerMiddleware(new ErrorResponse(`Problem with file upload`, 500));
 		}
 	});
+	*/
+
 }

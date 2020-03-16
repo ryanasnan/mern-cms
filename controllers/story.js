@@ -7,21 +7,23 @@ const { validateSingleImageFile, uploadSingleFile } = require('../utils/fileHand
 const path = require('path');
 
 exports.getStories = asyncHandler(async (req, res, next) => {
+	let data;
 	if (req.params.userId) {
-		const data = await advancedModelResults(Story, req, { user: req.params.userId }, {
+		data = await advancedModelResults(Story, req, { user: req.params.userId }, {
 			path: 'user',
 			select: 'name avatar'
 		});
 
-		return res.status(200).json(data);
+		// generate custom prop
+
 	} else {
-		const data = await advancedModelResults(Story, req, {}, {
+		data = await advancedModelResults(Story, req, {}, {
 			path: 'user',
 			select: 'name avatar'
 		});
 
-		return res.status(200).json(data);
 	}
+	return res.status(200).json(data);
 });
 
 exports.getStory = asyncHandler(async (req, res, next) => {
@@ -87,7 +89,7 @@ exports.createStory = asyncHandler(async (req, res, next) => {
 	const fileName = `picture_story_${replaceSpaceToUnderscore(story.title.substring(0, 15))}_${dateNow}_${story.id}${path.parse(file.name).ext}`;
 	const directoryPath = `${process.env.FILE_UPLOAD_DIRECTORY}/${process.env.FILE_IMAGE_DIRECTORY}`;
 	const filePath = `${process.env.CLIENT_PUBLIC_PATH}/${directoryPath}/${fileName}`;
-	uploadSingleFile(file, filePath, next);
+	await uploadSingleFile(file, filePath, next);
 
 	story = await Story.findByIdAndUpdate(story.id,
 		{
@@ -143,7 +145,7 @@ exports.updateStory = asyncHandler(async (req, res, next) => {
 		const fileName = `picture_story_${replaceSpaceToUnderscore(req.body.title.substring(0, 15))}_${dateNow}_${story.id}${path.parse(file.name).ext}`;
 		const directoryPath = `${process.env.FILE_UPLOAD_DIRECTORY}/${process.env.FILE_IMAGE_DIRECTORY}`;
 		const filePath = `${process.env.CLIENT_PUBLIC_PATH}/${directoryPath}/${fileName}`;
-		uploadSingleFile(file, filePath, next);
+		await uploadSingleFile(file, filePath, next);
 
 		// Delete old file if necessary
 
@@ -206,7 +208,6 @@ exports.commentStory = asyncHandler(async (req, res, next) => {
 
 exports.replyComment = asyncHandler(async (req, res, next) => {
 	try {
-		console.log(req.params.id);
 		const user = await User.findById(req.user.id).select('-password');
 		let story = await Story.findById(req.params.id);
 
@@ -249,7 +250,8 @@ exports.getCommentByStory = asyncHandler(async (req, res, next) => {
 		const story = await Story.findById(req.params.id);
 
 		const comments = story.comments;
-		res.status(200).json({ success: true, data: comments });
+		const totalCommentsAndReplies = story.countCommentsAndReplies;
+		res.status(200).json({ success: true, data: {comments, totalCommentsAndReplies} });
 	} catch (err) {
 		res.status(500).send('server error');
 	}
@@ -315,9 +317,9 @@ exports.deleteReply = asyncHandler(async (req, res, next) => {
 		}
 
 		let commentStory = story.comments.filter(function (objectCommentStory) {
-			if(objectCommentStory._id == req.params.comment_id) {
+			if (objectCommentStory._id == req.params.comment_id) {
 				var x = objectCommentStory.reply.filter((objectReplyComment) => {
-					if(objectReplyComment._id != req.params.reply_id) {
+					if (objectReplyComment._id != req.params.reply_id) {
 						return true;
 					}
 					else {
@@ -326,7 +328,7 @@ exports.deleteReply = asyncHandler(async (req, res, next) => {
 				});
 				objectCommentStory.reply = x;
 				return true
-			} else {			
+			} else {
 				return true;
 			}
 		});
@@ -335,14 +337,72 @@ exports.deleteReply = asyncHandler(async (req, res, next) => {
 		res.status(200).json({ success: true });
 
 	} catch (err) {
-		console.log(err);
 		res.status(500).send('server error');
 	}
 });
-/*
-edit comment dan delete comment
-		// Check user
-		if (comment.user.toString() !== req.user.id) {
-			return res.status(401).json({ msg: 'User not authorized' });
+
+
+exports.getLikesByStory = asyncHandler(async (req, res, next) => {
+	try {
+		const story = await Story.findById(req.params.id);
+		const likes = story.likes;
+		res.status(200).json({ success: true, data: likes });
+	} catch (err) {
+		res.status(500).send('server error');
+	}
+})
+
+exports.likeStory = asyncHandler(async (req, res, next) => {
+	try {
+		const user = await User.findById(req.user.id).select('-password');
+		let story = await Story.findById(req.params.id);
+
+		const newLike = {
+			user: user.id,
+			name: user.name,
+			avatar: user.avatar
+		};
+
+		// prevent like story if the user already like
+		let checkUserLikeInStory = story.likes.find((obj) => { return obj.user == user.id });
+
+		if (checkUserLikeInStory == undefined) {
+			story.likes.unshift(newLike);
 		}
-*/
+
+		await story.updateOne({ $set: { likes: story.likes } });
+		res.status(200).json({ success: true });
+	} catch (err) {
+		res.status(500).send('server error');		
+	}
+})
+
+exports.unlikeStory = asyncHandler(async (req, res, next) => {
+	try {
+		let story = await Story.findOne({ _id: req.params.id });
+
+		let selectedLikeStory = story.likes.find((obj) => { return obj._id == req.params.like_id });
+
+		if (selectedLikeStory == undefined) {
+			return next(
+				new ErrorResponse(`Like not found with id of ${req.params.id}`, 404)
+			);
+		}
+
+		// Make sure user is comment owner
+		if (selectedLikeStory.user.toString() !== req.user.id) {
+			return next(
+				new ErrorResponse(`User ${req.params.id} is not authorized to unlike story`, 404)
+			);
+		}
+
+		let likeStory = story.likes.filter(function (objectLikeStory) {
+			return objectLikeStory._id != req.params.like_id
+		});
+
+		await story.updateOne({ $set: { likes: likeStory } });
+		res.status(200).json({ success: true });
+	} catch (err) {
+		res.status(500).send('server error');		
+	}
+})

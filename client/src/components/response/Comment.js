@@ -1,0 +1,1 @@
+// comment section (will be used to show all comment of a story)

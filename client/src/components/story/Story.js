@@ -9,7 +9,7 @@ import { isObjectEmpty, isNullOrEmptyObject } from '../../utils/helper';
 import parse from 'html-react-parser';
 import moment from 'moment';
 import Spinner from '../layout/Spinner';
-import Comment from '../comment/Comment';
+import Response from '../response/Response';
 
 class Story extends Component {
 	constructor(props) {
@@ -45,6 +45,7 @@ class Story extends Component {
 					...prevState.story,
 					data: {
 						...prevState.story.data,
+						_id: nextProps.story.story.data.results._id,
 						title: nextProps.story.story.data.results.title,
 						text: nextProps.story.story.data.results.text,
 						picture: nextProps.story.story.data.results.picture,
@@ -122,7 +123,12 @@ class Story extends Component {
 
 						{this.renderStory(singleStory, loadingSingleStory)}
 
-						<Comment slug={this.props.match.params.slug} />
+						{
+							!loadingSingleStory
+							? 
+							<Response story={singleStory} />
+							: <Spinner/>
+						}
 						
 						<div className="container pt-4 pb-4">
 							<h5 className="font-weight-bold spanborder"><span>Read next</span></h5>

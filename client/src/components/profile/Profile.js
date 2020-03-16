@@ -12,13 +12,16 @@ class Profile extends Component {
 		this.props.clearErrors();
 
 	}
-	
+
 	render() {
 		return (
 			<div className="row increase-min-height justify-content-center">
 				<div className="col-md-8">
 					<div className="row mt-4 mb-4 justify-content-center profile">
 						<div className="col-md-8 user-info">
+							<div className="mt-3">
+								<b>The profile Feature will added soon</b>
+							</div>
 							<div className="top-user-info">
 								<span className="mr-2">My Name</span>
 								<span><Link className="btn btn-primary btn-sm btn-lightblue" to="#">Edit</Link></span>

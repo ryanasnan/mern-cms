@@ -66,3 +66,15 @@ exports.advancedModelResults = async (model, req, filter = {}, populate = {}) =>
 		results
 	};
 };
+
+exports.totalCommentsAndReplies = (comments) => {
+	let totalReplies = 0;
+	for (let indexCommentStory = 0; indexCommentStory < comments.length; indexCommentStory++) {
+		for (let indexReplyComment = 0; indexReplyComment < comments[indexCommentStory].reply.length; indexReplyComment++) {
+			totalReplies = totalReplies + 1;
+		}
+	}
+	let totalCommentsAndReplies = totalReplies + comments.length;
+
+	return totalCommentsAndReplies;
+}

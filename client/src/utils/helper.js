@@ -2,6 +2,8 @@ export const jpgDemoImg = (name) => require(`../img/demo/${name}.jpg`);
 
 export const jpegDemoImg = (name) => require(`../img/demo/${name}.jpeg`);
 
+export const isObjectExist = (obj) => typeof obj !== 'undefined' ? true : false
+
 export const isObjectEmpty = (obj) => Object.keys(obj).length === 0 && obj.constructor === Object;
 
 // parameter convention doesnt allow to use empty object and javascript type data null is object too
@@ -39,8 +41,8 @@ export const preventDuplicateSameObjectDocumentId = (initialarray, newArray) => 
 
 export const arrayPaginator = (items, page, limit) => {
 	var page = page || 1,
-		limit = limit || 3,
-		offset = (page - 1) * limit,
+		limit = limit || 3
+	let	offset = (page - 1) * limit,
 
 		paginatedItems = items.slice(offset).slice(0, limit),
 		totalPages = Math.ceil(items.length / limit);

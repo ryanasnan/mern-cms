@@ -94,6 +94,18 @@ ul.story-button li {
   margin-right: 10px;
 }
 
+ul.list-block {
+  padding: 0;
+}
+
+ul.list-block li {
+  padding: 0;
+  border: none;
+  display: block;
+  margin-right: 10px;
+}
+
+
 .top-user-info span {
   display: inline;
   margin: 0 5px;
@@ -256,13 +268,12 @@ input.image-story {
 
 div.main-comment {
   background-color: #f8f9fa;
-  border-color: #f8f9fa;
+  border: 1px solid #ddd;
 }
 
 div.reply-comment {
   background-color: #e8f3ec;
-  border-color: #e8f3ec;
-  /* alternative : #f1f1f1 */
+  border: 1px solid #c6decf;
 }
 
 textarea.input-comment {

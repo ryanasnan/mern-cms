@@ -8,7 +8,9 @@ import {
 	GET_STORY,
 	RESET_STORY,
 	LOADING_COMMENT,
-	GET_COMMENT
+	GET_COMMENT,
+	LOADING_LIKE,
+	GET_LIKE
 }
 	from './types';
 
@@ -231,7 +233,7 @@ export const commentStory = (storyId, commentData) => async (dispatch) => {
 
 export const replyComment = (storyId, commentId, commentData, hasMention = '') => async (dispatch) => {
 	let queryString = '';
-	if (hasMention != '') {
+	if (hasMention !== '') {
 		queryString = `mention=${hasMention}`;
 	}
 
@@ -285,7 +287,7 @@ export const deleteReplyComment = (storyId,	commentId, replyId) => async (dispat
 
 }
 
-export const reloadComment = (storyId) => async (dispatch) => {
+export const loadComment = (storyId) => async (dispatch) => {
 	dispatch({
 		type: LOADING_COMMENT,
 		payload: null
@@ -298,6 +300,65 @@ export const reloadComment = (storyId) => async (dispatch) => {
 			payload: res.data.data
 		});
 
+	} catch (err) {
+		const errors = err.response.data.error;
+		if (errors) {
+			console.log(err.response);
+			// const inputError = !isObjectEmpty(errors.details) ? errors.details : {};
+			// dispatch(setErrors(inputError));
+
+			// const message = errors.message ? errors.message : "";
+			// dispatch(setAlert(message, 'danger'));
+		}
+	}
+}
+
+// Get All Likes By Story
+export const loadLikeStory = (storyId) => async (dispatch) => {
+	dispatch({
+		type: LOADING_LIKE,
+		payload: null
+	})
+	try {
+		const res = await axios.get(`/api/story/${storyId}/like`);
+		dispatch({
+			type: GET_LIKE,
+			payload: res.data.data
+		});
+
+	} catch (err) {
+		const errors = err.response.data.error;
+		if (errors) {
+			console.log(err.response);
+			// const inputError = !isObjectEmpty(errors.details) ? errors.details : {};
+			// dispatch(setErrors(inputError));
+
+			// const message = errors.message ? errors.message : "";
+			// dispatch(setAlert(message, 'danger'));
+		}
+	}
+}
+
+export const likeStory = (storyId) => async (dispatch) => {
+	try {
+		await axios.post(`/api/story/${storyId}/like`);
+
+	} catch (err) {
+		const errors = err.response.data.error;
+		if (errors) {
+			console.log(err.response);
+			// const inputError = !isObjectEmpty(errors.details) ? errors.details : {};
+			// dispatch(setErrors(inputError));
+
+			// const message = errors.message ? errors.message : "";
+			// dispatch(setAlert(message, 'danger'));
+		}
+	}
+}
+
+export const unlikeStory = (storyId, likeId) => async (dispatch) => {
+	try {
+		await axios.delete(`/api/story/${storyId}/unlike/${likeId}`);
 	} catch (err) {
 		const errors = err.response.data.error;
 		if (errors) {

@@ -1,0 +1,1 @@
+// like section (will be used to show all like of a story)

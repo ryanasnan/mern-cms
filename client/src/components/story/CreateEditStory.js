@@ -169,9 +169,9 @@ class CreateEditStory extends Component {
 							<button type="submit" className={`btn ${!storySlug ? 'btn-primary' : 'btn-secondary'}`}>{!storySlug ? 'Publish' : 'Update'}</button>
 						</div>
 						<div className="row mt-4 mb-4">
-							<label className={`btn mb-0 preview-story ${picture.showPreview == false ? 'no-image' : ''} `} htmlFor="story-image">
+							<label className={`btn mb-0 preview-story ${picture.showPreview === false ? 'no-image' : ''} `} htmlFor="story-image">
 								{
-									picture.showPreview == false
+									picture.showPreview === false
 										? 'Add Picture'
 										: <img alt="" src={picture.previewURL} />
 								}

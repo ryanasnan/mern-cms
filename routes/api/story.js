@@ -11,7 +11,10 @@ const {
 	replyComment,
 	getCommentByStory,
 	deleteComment,
-	deleteReply
+	deleteReply,
+	getLikesByStory,
+	likeStory,
+	unlikeStory
 } = require('../../controllers/story');
 
 const { authWithPassport } = require('../../middlewares/auth');
@@ -33,7 +36,7 @@ router
 
 router
 	.route('/:id/comment')
-	.get(authWithPassport, getCommentByStory)
+	.get(getCommentByStory)
 	.put(authWithPassport, commentStory);
 
 router
@@ -47,5 +50,14 @@ router
 router
 	.route('/:id/comment/:comment_id/reply/:reply_id')
 	.delete(authWithPassport, deleteReply);
+
+router
+	.route('/:id/like')
+	.get(getLikesByStory)
+	.post(authWithPassport, likeStory);
+
+router
+	.route('/:id/unlike/:like_id')
+	.delete(authWithPassport, unlikeStory)
 
 module.exports = router;

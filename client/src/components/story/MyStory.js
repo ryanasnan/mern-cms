@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { connect } from 'react-redux';
@@ -30,7 +30,7 @@ class MyStory extends Component {
 					},
 					totalDocument: 0,
 					sort: '-createdAt',
-					select: 'title slug text createdAt picture',
+					select: 'title slug text createdAt picture comments likes',
 					limit: 10
 				}
 			}
@@ -161,6 +161,8 @@ class MyStory extends Component {
 		const storyTextWithoutTag = removeTagHtml(story.text);
 		const storyText = storyTextWithoutTag.length < 80 ? storyTextWithoutTag : storyTextWithoutTag.substring(0, 80) + '...';
 		const title = story.title.length < 35 ? story.title : story.title.substring(0, 35) + '...';
+		const comments = story.comments;
+		const likes = story.likes;
 
 		return (
 			<div key={story._id} className="flex-item-two-columns pt-3 border-top border-dark">
@@ -177,13 +179,111 @@ class MyStory extends Component {
 					</div>
 				</div>
 				<ul className="story-button">
-					<li className="form-control"><button className="btn btn-sm btn-primary"><i className="fa fa-chart-line"></i><FontAwesomeIcon size="sm" icon="thumbs-up" /> 12 Like</button></li>
-					<li className="form-control"><button className="btn btn-sm btn-secondary"><FontAwesomeIcon size="sm" icon="comment" /> 2 Comment</button></li>
-					<li className="form-control"><Link to={`./editstory/${story.slug}`} className="btn btn-sm btn-lightblue"><FontAwesomeIcon size="sm" icon="edit" /> Edit</Link></li>
-					<li className="form-control"><button onClick={() => { this.deleteData(story._id, title) }} className="btn btn-sm btn-danger"><FontAwesomeIcon size="sm" icon="trash-alt" /> Delete</button></li>
+					<li className="form-control">
+						<button className="btn btn-sm btn-primary" data-toggle="modal" data-target={`#likeModal-${story._id}`}>
+							<i className="fa fa-chart-line"></i><FontAwesomeIcon size="sm" icon="thumbs-up" /> Like ({story.countLikes})
+						</button>
+
+						<div className="modal fade" id={`likeModal-${story._id}`} tabIndex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+							<div className="modal-dialog modal-dialog-centered" role="document">
+								<div className="modal-content">
+									<div className="modal-header">
+										<h5 className="modal-title">User who like the story</h5>
+										<button type="button" className="close" data-dismiss="modal" aria-label="Close">
+											<span aria-hidden="true">&times;</span>
+										</button>
+									</div>
+									<div className="modal-body">
+										<ul className="list-block">
+											{_.map(likes, like => {
+												return (
+													<li key={like._id}><b>{like.name}</b> {moment(like.date).fromNow()}</li>
+												)
+											})}
+
+										</ul>
+									</div>
+								</div>
+							</div>
+						</div>
+
+					</li>
+					<li className="form-control">
+						<button className="btn btn-sm btn-secondary" data-toggle="modal" data-target={`#commentModal-${story._id}`}>
+							<FontAwesomeIcon size="sm" icon="comment" /> Comment ({story.countCommentsAndReplies})
+						</button>
+
+						<div className="modal fade" id={`commentModal-${story._id}`} tabIndex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+							<div className="modal-dialog modal-dialog-centered" role="document">
+								<div className="modal-content">
+									<div className="modal-header">
+										<h5 className="modal-title">User comments</h5>
+										<button type="button" className="close" data-dismiss="modal" aria-label="Close">
+											<span aria-hidden="true">&times;</span>
+										</button>
+									</div>
+									<div className="modal-body">
+
+										{_.map(comments, comment => {
+											return (
+												<Fragment key={comment._id}>
+													<div className="card mb-4 box-shadow main-comment pt-3 pb-3 pl-3 pr-3">
+														{this.renderComments(comment, null)}
+														{
+															comment.reply.length !== 0
+																?
+																<div className="card mb-4 box-shadow reply-comment pt-3 pb-3 pl-3 pr-3">
+																	{_.map(comment.reply, reply => {
+																		return (
+																			<Fragment key={reply._id}>
+																				{this.renderComments(reply, comment)}
+																			</Fragment>
+																		)
+																	})}
+																</div>
+																: ''
+														}
+													</div>
+												</Fragment>
+											)
+										})}
+
+									</div>
+								</div>
+							</div>
+						</div>
+
+					</li>
+					<li className="form-control">
+						<Link to={`./editstory/${story.slug}`} className="btn btn-sm btn-lightblue"><FontAwesomeIcon size="sm" icon="edit" /> Edit</Link>
+					</li>
+					<li className="form-control">
+						<button onClick={() => { this.deleteData(story._id, title) }} className="btn btn-sm btn-danger"><FontAwesomeIcon size="sm" icon="trash-alt" /> Delete</button>
+					</li>
 				</ul>
 			</div>
 		);
+	}
+
+	renderComments(comment, parentComment = null) {
+		return (
+			<Fragment>
+				<div className="mb-2">
+					<div className="d-flex mb-3 align-items-center">
+						<img alt="#" className="rounded-circle shadow extra-small-thumbnail" src="https://www.w3schools.com/howto/img_avatar.png" />
+						<div className="pl-3">
+							<h2 className="mb-2 h6 font-weight-bold">
+								<Link className="text-dark" to="./story">{comment.name}</Link>
+							</h2>
+							<small className="text-muted mr-2">{moment(comment.date).fromNow()}</small>
+						</div>
+					</div>
+					<div className="card-text text-muted">
+						{comment.text}
+					</div>
+				</div>
+			</Fragment>
+		)
 	}
 
 	renderPaginationPointer() {
