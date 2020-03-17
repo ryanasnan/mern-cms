@@ -49,7 +49,7 @@ class Response extends Component {
 			}
 		}
 
-		if(!nextProps.storyLike.loading) {
+		if (!nextProps.storyLike.loading) {
 			stateObj = {
 				...stateObj,
 				like: {
@@ -58,7 +58,7 @@ class Response extends Component {
 				}
 			}
 
-			if(!isNullOrEmptyObject(nextProps.auth.user)) {
+			if (!isNullOrEmptyObject(nextProps.auth.user)) {
 				// the getderivedstatefromprops cannot access function/method in this class
 
 				let status = false;
@@ -70,7 +70,7 @@ class Response extends Component {
 					status = true;
 					likeId = checkUserLikeStory._id;
 				}
-				
+
 				stateObj = {
 					...stateObj,
 					like: {
@@ -224,7 +224,7 @@ class Response extends Component {
 						<img alt="#" className="rounded-circle shadow extra-small-thumbnail" src="https://www.w3schools.com/howto/img_avatar.png" />
 						<div className="pl-3">
 							<h2 className="mb-2 h6 font-weight-bold">
-								<Link className="text-dark" to="./story">{comment.name}</Link>
+								<Link className="text-dark" to="#">{comment.name}</Link>
 							</h2>
 							<small className="text-muted mr-2">{moment(comment.date).fromNow()}</small>
 						</div>
@@ -232,9 +232,9 @@ class Response extends Component {
 					<div className="card-text text-muted">
 						{comment.text}
 					</div>
-					{ 
-						isAuthenticated 
-						? 
+					{
+						isAuthenticated
+							?
 							parentComment != null
 								?
 								<Fragment>
@@ -252,10 +252,10 @@ class Response extends Component {
 										user._id === comment.user
 											? <button className="btn btn-link btn-sm pl-0 text-danger" onClick={(e) => this.deleteComment(e, this.state.story, comment)}>Delete</button>
 											: ''
-	
+
 									}
 								</Fragment>
-						: ''
+							: ''
 					}
 				</div>
 				{
@@ -308,62 +308,68 @@ class Response extends Component {
 	}
 
 	componentDidMount() {
-		const { getComments, story } = this.state;
-		if (getComments.currentPage == null) {
-			this.loadComment(1);
-		}
 
-		if (this.state.like.dataLikeStory == null) {
-			this.props.loadLikeStory(story._id);
-		}
+		// force to load from beginning in first mount (exp : load another single story)
+		// const { getComments, story } = this.state;
+		// if (getComments.currentPage == null) {
+		// 	this.loadComment(1);
+		// }
+
+		// if (this.state.like.dataLikeStory == null) {
+		// 	this.props.loadLikeStory(story._id);
+		// }
+
+		const { story } = this.state;
+		this.loadComment(1);
+		this.props.loadLikeStory(story._id);
 	}
 
 	render() {
 		const { getComments, story, like } = this.state;
 		const { auth: { isAuthenticated } } = this.props;
 
-		const responseButton = 
-			isAuthenticated 
-			? (<Fragment>
-				<div className="container">
-					<div className="row justify-content-center">
-						<div className="col-md-12 pb-2 text-center">
+		const responseButton =
+			isAuthenticated
+				? (<Fragment>
+					<div className="container">
+						<div className="row justify-content-center">
+							<div className="col-md-12 pb-2 text-center">
 
-							{
-								like.userLikeStoryStatus.status === true
-								? <button type="button" className="btn btn-danger ml-2 mr-2" onClick={(e) => this.setUnlikeStory(e, story._id, like.userLikeStoryStatus.likeId)}>
-									<FontAwesomeIcon size="sm" icon="thumbs-down" /> Unlike ({this.state.like.totalLikes})
+								{
+									like.userLikeStoryStatus.status === true
+										? <button type="button" className="btn btn-danger ml-2 mr-2" onClick={(e) => this.setUnlikeStory(e, story._id, like.userLikeStoryStatus.likeId)}>
+											<FontAwesomeIcon size="sm" icon="thumbs-down" /> Unlike ({this.state.like.totalLikes})
 								</button>
-								: <button type="button" className="btn btn-primary ml-2 mr-2" onClick={(e) => this.setLikeStory(e, story._id)}>
-									<FontAwesomeIcon size="sm" icon="thumbs-up" /> Like ({this.state.like.totalLikes})
+										: <button type="button" className="btn btn-primary ml-2 mr-2" onClick={(e) => this.setLikeStory(e, story._id)}>
+											<FontAwesomeIcon size="sm" icon="thumbs-up" /> Like ({this.state.like.totalLikes})
 								</button>
-							}
+								}
 
-							<button className="btn btn-secondary ml-2 mr-2" onClick={(e) => this.setFocusComment() }>
-								<FontAwesomeIcon size="sm" icon="comment" /> Comment ({this.state.totalCommentsAndReplies})
+								<button className="btn btn-secondary ml-2 mr-2" onClick={(e) => this.setFocusComment()}>
+									<FontAwesomeIcon size="sm" icon="comment" /> Comment ({this.state.totalCommentsAndReplies})
 							</button>
-							<hr />
+								<hr />
+							</div>
 						</div>
 					</div>
-				</div>
-			</Fragment>)			
-			: (<Fragment>
-				<div className="container">
-					<div className="row justify-content-center">
-						<div className="col-md-12 pb-2 text-center">
-							<button type="button" className="btn btn-primary ml-2 mr-2" onClick={(e) => this.setLikeStory(e, story._id)}>
-								<FontAwesomeIcon size="sm" icon="thumbs-up" /> Likes (20)
+				</Fragment>)
+				: (<Fragment>
+					<div className="container">
+						<div className="row justify-content-center">
+							<div className="col-md-12 pb-2 text-center">
+								<button type="button" className="btn btn-primary ml-2 mr-2" onClick={(e) => this.setLikeStory(e, story._id)}>
+									<FontAwesomeIcon size="sm" icon="thumbs-up" /> Likes (20)
 							</button>
 
-							<button className="btn btn-secondary ml-2 mr-2">
-								<FontAwesomeIcon size="sm" icon="comment" /> Comments ({this.state.totalCommentsAndReplies})
+								<button className="btn btn-secondary ml-2 mr-2">
+									<FontAwesomeIcon size="sm" icon="comment" /> Comments ({this.state.totalCommentsAndReplies})
 							</button>
-							<hr />
+								<hr />
+							</div>
 						</div>
 					</div>
-				</div>
-			</Fragment>);
-		
+				</Fragment>);
+
 
 		return (
 			<Fragment>
@@ -423,7 +429,7 @@ class Response extends Component {
 										</div>
 									</Fragment>
 								)
-							})}	
+							})}
 
 						</div>
 					</div>

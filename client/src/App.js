@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import DynamicScrollToTop from './components/layout/DynamicScrollToTop';
 
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
@@ -39,6 +40,7 @@ class App extends Component {
 		return (
 			<Provider store={store}>
 				<Router>
+					<DynamicScrollToTop />
 					<Navbar />
 					<div className="container mt-5">
 						<Alert />
