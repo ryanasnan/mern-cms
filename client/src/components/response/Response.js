@@ -87,7 +87,7 @@ class Response extends Component {
 		return stateObj;
 	}
 
-	paginateComment = _.debounce((page) => {
+	paginateComment = _.debounce(async (page) => {
 		if (page != null) {
 			if (!isObjectEmpty(this.props.storyComment.data)) {
 				const comments = this.props.storyComment.data;
@@ -198,9 +198,9 @@ class Response extends Component {
 		}
 	}
 
-	loadComment = _.debounce((pageJump) => {
-		this.props.loadComment(this.state.story._id);
-		this.paginateComment(pageJump);
+	loadComment = _.debounce(async(pageJump) => {
+		await this.props.loadComment(this.state.story._id);
+		await this.paginateComment(pageJump);
 	}, 900)
 
 	setLikeStory = async (e, storyId) => {
