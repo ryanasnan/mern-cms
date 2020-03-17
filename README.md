@@ -52,4 +52,7 @@ PROFIT!!!
 
 ## Deploy note
 
-If you want to deploy this app, just change the env from `development` to `production`
+If you want to deploy this app, just change the node env from `development` to `production` and the client public path from `./client/public` to `./client/build`
+
+    NODE_ENV=production
+    CLIENT_PUBLIC_PATH=./client/build

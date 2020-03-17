@@ -24,8 +24,7 @@ query.exec(async function (err, arrIdLists) {
 			var avatar = "https://ui-avatars.com/api/?size=256&name=" + name.split(' ').join('+');
 			var email = `${firstName}.${lastName}@mail.com`;
 
-			var salt = await bcrypt.genSalt(10);
-			var password = await bcrypt.hash('123123', salt);
+			var password = '123123';
 
 			var checkUser = await User.findOne({ email: email });
 			if (!checkUser) {

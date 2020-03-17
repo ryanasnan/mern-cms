@@ -77,7 +77,7 @@ query.exec(async function (err, arrIdLists) {
 			for (let j = 0; j < 7; j++) {
 				text += '<p>' + faker.lorem.paragraphs() + '</p>';
 			}
-			var storyDateIndicator = new Date('2020-01-01');
+			var storyDateIndicator = new Date('2016-01-01');
 
 			var randomFileName = files[Math.floor(Math.random() * files.length)];
 			await Story.create({
